@@ -1,0 +1,295 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가 
+ $token = get_token();
+?>
+
+ <div class="subTopTab">
+	<ul class="item">
+     <li><a href="#" title="페이지 이동" class="active"><span>사용내역조회</span></a></li>
+  </ul>
+ </div>
+
+<div class="titlegroup">
+      <em>사용내역조회</em>      
+	<div class="navgroup">		
+		 <p>Home <span class="rt">&gt;</span> 마이페이지 <span class="rt">&gt;</span> 사용내역조회</p>
+	</div>     
+</div>
+
+<!-- 사용내역조회 -->
+
+<div class="phonegroup">
+<div class="phonegroupin">
+<div class="phonegroupwrap">
+	
+
+<?php
+
+function chk_ilja($pdate){
+    if (preg_match("/^([12][0-9]{3})-([01][0-9])-([0-3][0-9])$/", $pdate,$rtnarr)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+$gijun_date = date("Y-m-d");
+$before_start_day = date("Y-m-01");
+
+
+if ((!$start_date)||(!$end_date)) {
+   //$before_end_day  = date("Y-m-d",strtotime($gijun_start.' -1 day'));
+   $start_date = $before_start_day;     
+   $end_date = $gijun_date;
+} else {
+    // 날짜 형시이 아니면.. 
+    $err_date = '';
+    if (chk_ilja($start_date) == false){
+        $start_date = $before_start_day; 
+        $err_date = ' : 검색기간 형식오류로 기본일자 적용';
+    }
+    if (chk_ilja($end_date) == false){
+       $end_date = $gijun_date;
+       $err_date = ' : 검색기간 형식오류로 기본일자 적용';
+    }    
+}
+$sql = "select * from ele_money_mst where elem_id='{$member['mb_no']}'";
+$result = sql_query($sql);
+$member_mst = sql_fetch_array($result);
+
+$sql = " select  mb_nick as mbname, lms_yn, ".
+"sum(wr_total) sms_total,".
+"sum(wr_success) sms_success,".
+"sum(wr_failure) sms_failed,".
+"sum(cv_total) cv_total,".
+"sum(cv_success) cv_success,".
+"sum(cv_failed) cv_failed ".
+"from ".
+"(SELECT sm.wr_id sm_mbno,mb_nick,".
+"(case when ( ifnull((select count(*) from sms5_history as sh where sh.wr_no = sm.wr_no and sh.mb_id = 'LMS'),0) > 0) then 'LMS' else 'SMS' end) as lms_yn, ".
+"wr_total,wr_success,wr_failure,".
+//"(case when (locate('http://mms.ac',wr_message) > 0) then wr_total else 0 end) cv_total,".
+//"(case when (locate('http://mms.ac',wr_message) > 0) then wr_success else 0 end) cv_success,".
+//"(case when (locate('http://mms.ac',wr_message) > 0) then wr_failure else 0 end) cv_failed ".
+"(case when ((wr_udoc is not null) or (wr_poll is not null)) then wr_total else 0 end) cv_total,".
+"(case when ((wr_udoc is not null) or (wr_poll is not null)) then wr_success else 0 end) cv_success,".
+"(case when ((wr_udoc is not null) or (wr_poll is not null)) then wr_failure else 0 end) cv_failed ".
+"FROM sms5_write as sm,g5_member as mb ".
+"where mb.mb_no = '{$member['mb_no']}' and mb.mb_no = sm.wr_id and DATE_FORMAT(sm.wr_datetime,'%Y-%m-%d')  between '{$start_date}' and '{$end_date}' ".") data_table ".
+"group by 1,2  order by 1,2";
+$result = sql_query($sql);
+
+$g5['title'] = '사용 내역';
+
+$processFlag = false;
+
+?>
+
+<style type="text/css">
+    #smsusetable tr td{border:1px solid #737373;font-size: 16px;}
+    #smsusetable tr th{border:1px solid #737373;text-align: center;font-size: 18px;}
+    #smsusetable tr{height: 50px;}
+    #period_text{font-size:20px;margin:5px 10px;}
+    .td_right{text-align: right;padding-right: 30px !important;font-weight: bold;}
+    .td_center{text-align: center;}
+</style>
+
+<div id="sub_content">
+
+  <form name="fsearch" id="fsearch" class="local_sch01 local_sch" method="get">
+  <input type="hidden" name="m1" id="m1" value="8" >
+  <input type="hidden" name="m2" id="m2" value="6" >      
+  <label for="sfl" class="sound_only">검색대상</label>
+  <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>    
+  <label for="start_date" >검색기간<strong class="sound_only"> 필수</strong></label>
+  <input type="text" name="start_date" value="<?php echo $start_date ?>" id="start_date" required class="required frm_input">~
+  <input type="text" name="end_date" value="<?php echo $end_date ?>" id="end_date" required class="required frm_input">
+  <input type="submit" class="btnW2" value="검 색">
+  </form>
+  <br>
+
+<h1 id="period_text">
+<?php echo '대상기간 : '.$start_date.' ~ '.$end_date.' '.$err_date; ?>
+</h1>
+
+ <div class="tbl_head01 tbl_wrap">
+            <table>
+            <caption>휴대폰번호 그룹 목록</caption>
+            <colgroup>
+            <col width="5%" />
+            <col width="5%" />
+
+            <col width="10%" />  
+            <col width="15%" />                                  
+            <col width="15%" />
+            <col width="*" />
+            </colgroup>    
+            <thead>
+            <tr>
+                <th rowspan="2" scope="col">순서</th>
+                <th rowspan="2" scope="col">구분</th>
+                <th rowspan="2" scope="col">발송(A+B+C)</th>				                
+                <th colspan="2" scope="col">성공(B)</th>
+				<th colspan="2" scope="col">실패(A)</th>
+				<th colspan="2" scope="col">대기(C)</th>
+             </tr>
+			 <tr>
+			    <th scope="col">일반</th>
+                <th scope="col">가정통신문</th>
+			    <th scope="col">일반</th>
+                <th scope="col">가정통신문</th>
+			    <th scope="col">일반</th>
+                <th scope="col">가정통신문</th>
+			</tr>    				
+             </thead>
+             <tbody>      
+             
+             
+<!--  내용 -->
+    <?php			
+	$total_money = 0;
+	$total_lms = 0;
+	$total_sms = 0;
+    for ($i=0; $row=sql_fetch_array($result); $i++) {
+        $bg = 'bg'.($i%2);        
+        $lms_yn         = $row['lms_yn']; 
+        $sms_total      = $row['sms_total']; 			// 전체: 전송건수
+        $sms_success  = $row['sms_success']; 			// 성공: 전체건수
+        $sms_failed     = $row['sms_failed']; 			// 실패: 전체건수		
+		
+        $cv_total       = $row['cv_total']; 		// 전체: 가정통보문건수        
+		$cv_success     = $row['cv_success']; 			// 성공: 가정통보문건수
+        $cv_failed      = $row['cv_failed']; 			// 실패: 가정통보문건수
+		
+		if ($cv_total >= $cv_success + $cv_failed) {
+			$cv_wait = $cv_total - $cv_success - $cv_failed;   // 대기: 가정통보문건수
+		}
+		else {
+			$cv_wait = 0;
+			if ($cv_total < $cv_success) {
+				$cv_success = $cv_total;
+				$cv_failed = 0;
+			}
+			else {
+				$cv_failed = $cv_total - $cv_success;
+			}
+		}
+        
+		$s_sms_total	= $sms_total - $cv_total;
+		$s_sms_cnt      = $sms_success - $cv_success;   // 성공: 일반문자건수
+		$s_sms_err_cnt  = $sms_failed - $cv_failed;   	// 실패: 일반문자건수	
+		if ($s_sms_total >= $s_sms_cnt + $s_sms_err_cnt) {
+			$s_sms_wait_cnt = $s_sms_total - $s_sms_cnt - $s_sms_err_cnt;   // 대기: 일반문자건수
+		}
+		else {
+			$s_sms_wait_cnt = 0;
+			if ($s_sms_total < $s_sms_cnt) {
+				$s_sms_cnt = $s_sms_total;
+				$s_sms_err_cnt = 0;
+			}
+			else {
+				$s_sms_err_cnt = $s_sms_total - $s_sms_cnt;
+			}
+		}
+		
+		$success_money = 0;
+		$successdoc_money = 0;
+		$success_str = '';
+		$successdoc_str = '';
+		
+		$fail_money = 0;
+		$faildoc_money = 0;
+		$fail_str = '';
+		$faildoc_str = '';
+		
+		$wait_money = 0;
+		$waitdoc_money = 0;
+		$wait_str = '';
+		$waitdoc_str = '';
+
+		if ($member_mst['elem_type'] == '001') {
+			if ($lms_yn == 'LMS') {
+				$success_money = $s_sms_cnt * $member_mst['elem_lms_user_price'];
+				$successdoc_money = $cv_success * $member_mst['elem_lmsdoc_user_price'];
+				
+				$fail_money = $s_sms_err_cnt * $member_mst['elem_lms_user_price'];
+				$faildoc_money = $cv_failed * $member_mst['elem_lmsdoc_user_price'];
+
+				$wait_money = $s_sms_wait_cnt * $member_mst['elem_lms_user_price'];
+				$waitdoc_money = $cv_wait * $member_mst['elem_lmsdoc_user_price'];
+			}
+			else {
+				$success_money = $s_sms_cnt * $member_mst['elem_sms_user_price'];
+				$successdoc_money = $cv_success * $member_mst['elem_smsdoc_user_price'];
+				
+				$fail_money = $s_sms_err_cnt * $member_mst['elem_sms_user_price'];
+				$faildoc_money = $cv_failed * $member_mst['elem_smsdoc_user_price'];
+
+				$wait_money = $s_sms_wait_cnt * $member_mst['elem_sms_user_price'];
+				$waitdoc_money = $cv_wait * $member_mst['elem_smsdoc_user_price'];
+			}		
+			$success_str = ' ('.$success_money.'원)';
+			$successdoc_str = ' ('.$successdoc_money.'원)';
+			
+			$fail_str = ' ('.$fail_money.'원)';
+			$faildoc_str = ' ('.$faildoc_money.'원)';
+			
+			$wait_str = ' ('.$wait_money.'원)';
+			$waitdoc_str = ' ('.$waitdoc_money.'원)';
+			
+			$total_money += ($success_money + $successdoc_money + $fail_money + $faildoc_money + $wait_money + $waitdoc_money);
+		}
+		else {
+			if ($lms_yn == 'LMS') {
+				$total_lms += ($s_sms_cnt + $s_sms_err_cnt + $s_sms_wait_cnt);
+			}
+			else {
+				$total_sms += ($s_sms_cnt + $s_sms_err_cnt + $s_sms_wait_cnt);
+			}
+		}
+    ?>
+
+    <tr class="<?php echo $bg; ?>">
+        <td class="td_center"><?php echo number_format($i+1,0);       ?></td>
+        <td class="td_center"><?php echo $lms_yn;                     ?></td>
+        <td class="td_center"><?php echo number_format($sms_total,0);   ?></td>		
+        <td class="td_center"><?php echo number_format($s_sms_cnt,0).$success_str;  ?></td>
+        <td class="td_center"><?php echo number_format($cv_success,0).$successdoc_str; ?></td>
+        <td class="td_center"><?php echo number_format($s_sms_err_cnt,0).$fail_str; ?></td>
+		<td class="td_center"><?php echo number_format($cv_failed,0).$faildoc_str; ?></td>
+        <td class="td_center"><?php echo number_format($s_sms_wait_cnt,0).$wait_str; ?></td>		
+		<td class="td_center"><?php echo number_format($cv_wait,0).$waitdoc_str; ?></td>		
+    </tr>
+
+    <?php
+    }
+	
+    if ($i == 0) {
+        echo '<tr><td colspan="9" class="empty_table">자료가 없습니다.</td></tr>';
+    }
+	else {
+		if ($member_mst['elem_type'] == '001') {
+			$total_string = '합계금액  '.$total_money.' 원(VAT포함)';
+			echo '<tr><td colspan="9" class="empty_table" style="font-weight:bold">'.$total_string.'</td></tr>';	
+		}
+		else if ($member_mst['elem_type'] == '002'){			
+			$total_money = $total_lms * 2.5 + $total_sms;
+			$total_string = 'LMS '.$total_lms.'건 (x 2.5건) + SMS '.$total_sms.'건 = '.$total_money.'건';
+			echo '<tr><td colspan="9" class="empty_table" style="font-weight:bold">'.$total_string.'</td></tr>';					
+		}	
+	}
+    ?>
+
+        </tbody>            
+      
+      </table>
+ </div>
+
+<!-- //사용내역조회
+-->
+
+</div>
+</div>
+</div>
+</div>
+

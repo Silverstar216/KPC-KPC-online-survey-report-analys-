@@ -1,0 +1,361 @@
+<?php
+  // 이 파일은 새로운 파일 생성시 반드시 포함되어야 함
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+
+  set_session('ele_conv_s', true);
+  $MaxLimit_len = 69;
+  $Long_MaxLimit_len = 2000;  
+  $Mb_7 = json_decode($member['mb_7']);
+  if ($Mb_7->{'LMS'} == '1'){
+      $LMS_flag = true;  
+  } else {
+      $LMS_flag = false;
+  }
+?>
+
+<div class="subTopTab">
+  <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>가정통신문</span></a></li>           
+  </ul>
+</div>
+
+<div class="titleBox">
+  <em>가정통신문</em>
+  <div class="bca">
+        <div class="breadCrumbs scBasic">
+          <p>홈<span class="rt">&gt;</span> 가정통신문 문자 <span class="rt">&gt;</span> 가정통신문</p>
+        </div>
+  </div>
+  <div class="psearch">
+          <div class="graybox">       
+                <div>
+                    <strong>내용입력</strong>                      
+                    <textarea  id="smsTitle" name="smsTitle" class="t1" onkeyup="byte_check('smsTitle', 'sms_bytes');"></textarea>                  
+                    <div id="sms_byte"><span id="sms_bytes">0</span> / <span id="limt_bytes"><?=$MaxLimit_len?></span>  byte</div>
+                </div>  
+                <div>      
+<form name="upload_conv_form" method="post" enctype="multipart/form-data" id="svc_fileup_frm">                   
+                  <strong>변환할문서</strong>        
+                  <input type="file" name="conv_up_file" id="conv_up_file" onchange="sel_cFile();">				  
+                  <span id="upload_button"><input type="button" value="올리기" onclick="upload();" class="btnT1"></span>                      
+</form>                     
+                </div>
+                <div>    
+                    <strong>주 소</strong>        
+                      <span id="file_url_s">변환할 문서를 먼저 선택하십시오.</span>
+                      <input type="button" value="미리보기" id='btn_preview' class="btnW1" onclick="opennewwindow();">  
+                </div>
+                <div id="file_up_loading" class="file_up_sloading2">
+                      <img src="/img/ajax_loader.gif"><p>파일 업로드 및 변환중... 잠시만 기다려주십시오...</p>
+                </div>        
+                 <div class="psend">
+					<form name="attach_send_fromDoc" method="get" action="/serv.php">
+						<input type="hidden" name="m1" value="3">
+						<input type="hidden" name="m2"  id="am2" value="">
+						<input type="hidden" name="audoc" id="audoc" value="">          
+						<input type="hidden" name="audcn" id="audcn" value="">          
+						<input type="hidden" name="astitle" id="astitle" value="">                   
+					<span id="upload1_button"><input type="button" value="회신첨부" onclick="send_attach(2);" class="btnT2">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+					<span id="upload2_button"><input type="button" value="설문첨부" onclick="send_attach(3);" class="btnT2"></span>
+					</form>
+                 </div>
+          </div><!-- .graybox -->
+          <div class="bot">
+                <p class="img"><img src="<?=G5_IMG_URL?>/bookimg.png"></p>
+                <div class="txt">
+                    <p class="fcr"> hwp, jpg, xls, doc, pdf 포맷을 지원합니다.</p>      
+                    <p class="fcr">최대 4mb의 문서까지 변환이 가능합니다.</p>
+                    <p class="fcr">변환된 html은 6개월간 저장됩니다.</p>
+                </div>
+          </div><!-- .bot -->             
+          <div class="psend"> 
+			  <form name="sms_send_fromDoc" method="get" action="/serv.php" onsubmit="return Send_sms_win();">
+					<input type="hidden" name="m1" value="4">
+					<input type="hidden" name="m2" value="1">
+					<input type="hidden" name="udoc" id="udoc" value="">          
+					<input type="hidden" name="udcn" id="udcn" value="">          
+					<input type="hidden" name="stitle" id="stitle" value="">          
+					<input type="hidden" name="polltype" id="polltype" value="0">                      
+					<div id = "btn_smsSend2" >
+								<input type="submit" value="다 음"  class="btnT2">                        
+					</div>                
+			   </form>              
+          </div><!-- .psend -->                        
+        </div>  <!-- .psearch -->      
+</div>
+
+<script type="text/javascript"> 
+<?php if ($LMS_flag == true) { ?>
+    scf = false; 
+<?php  } ?>  
+$omin = $('#smsTitle');
+$omin_label = $('#ol_smsTitle');
+$omin_label.addClass('ol_smsTitle');
+$(function() {
+    $omin.focus(function() {
+        $omin_label.css('visibility','hidden');
+    });
+    $omin.blur(function() {
+        $this = $(this);
+        if($this.attr('id') == "smsTitle" && $this.attr('value') == "") $omin_label.css('visibility','visible');
+    });
+    <?php if (!$is_guest) {?>       
+    set_conv_data = function(ckey,csname,fstitle,fname){    
+            $("#upload_button").css("display","inline");
+            $("#file_up_loading").css("display","none");
+            $('#btn_preview').css("display", "block");
+            $('#upload_button').css("display","none");
+            $('#udoc').attr("value",ckey);
+            $('#udcn').attr("value",csname);
+            $('#smsTitle').attr("value",fstitle);
+            $('#file_url_s').html(csname);     
+            $('#smsTitle').focus();       
+    };    
+    <?php } ?>
+});
+
+function send_attach(which_site){
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>    
+
+    fval = document.getElementById('udoc').value;
+    if (fval == ''){
+         alert('첨부문서를 먼저 변환 하십시오!!!');
+         return false;       
+    }
+
+    document.getElementById('stitle').value = document.getElementById('smsTitle').value;  
+    fval = document.getElementById('stitle').value;    
+    if (fval == ''){
+         alert('SMS 내용을 입력 하십시오!!!');
+         return false;       
+    }    
+    var f = document.attach_send_fromDoc;
+    (function($){
+        
+      tmp_udoc = $('#udoc').attr("value");      
+      tmp_udcn = $('#udcn').attr("value");
+      tmp_stitle = $('#stitle').attr("value");
+        $('#am2').attr("value",which_site);
+        $('#audoc').attr("value",tmp_udoc);
+        $('#audcn').attr("value",tmp_udcn);
+        $('#astitle').attr("value",tmp_stitle);                        
+        f.submit();
+    })(jQuery);
+<?php } ?>    
+}
+
+function Send_sms_win(){
+
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>    
+    fval = document.getElementById('udoc').value;
+    if (fval == ''){
+         alert('첨부문서를 먼저 변환 하십시오!!!');
+         return false;       
+    }
+    
+    document.getElementById('stitle').value = document.getElementById('smsTitle').value;  
+    fval = document.getElementById('stitle').value;    
+    if (fval == ''){
+         alert('SMS 내용을 입력 하십시오!!!');
+         return false;       
+    }    
+    return true; 
+<?php } ?>    
+}
+function checkFileExt(ext){ 
+  pathpoint = ext.lastIndexOf('.'); 
+  filepoint = ext.substring(pathpoint+1,ext.length); 
+  filetype = filepoint.toLowerCase(); 
+  if (filetype == 'jpg'||filetype == 'jpeg'|| filetype == 'hwp'|| filetype == 'xls'|| filetype == 'xlsx'|| filetype == 'doc'|| filetype == 'docx'|| filetype == 'pdf'){
+         return true; 
+  }else{
+         alert('변환 가능한 문서 형식이 아닙니다!!!');
+         return false; 
+  } 
+} 
+function sel_cFile(){
+    fval = document.getElementById('conv_up_file').value;
+    if (fval == ''){
+        document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';    
+        document.getElementById('upload_button').style.display='none';  
+        document.getElementById('btn_preview').style.display = 'none';
+    } else {
+        if (checkFileExt(fval)) {
+            document.getElementById('file_url_s').innerHTML = '선택된 문서를 파일전송[올리기] 하십시오.';
+            document.getElementById('upload_button').style.display='inline';  
+        } else {
+          document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';    
+          document.getElementById('upload_button').style.display='none';            
+        }
+        document.getElementById('btn_preview').style.display = 'none';
+    }    
+    document.getElementById('file_up_loading').style.display='none';  
+}
+
+function opennewwindow(){   
+      var url = document.getElementById('file_url_s').innerHTML;
+      window.open(url);
+}
+function opennnewwindow(url){         
+      window.open(url);
+}
+function Copy_to_clipboard()
+{
+    var url =  document.getElementById('file_url_s').innerHTML;
+    var IE=(document.all)?true:false;
+    if (IE) {
+      window.clipboardData.setData("Text", url);
+      alert('변환문서 주소가 복사되었습니다.\n\nCtrl+V (붙여넣기) 단축키를 이용하시면,\n주소를 붙여 넣으실 수 있습니다.');
+    } else {
+      temp = prompt("Ctrl+C를 눌러 복사 후 사용[Ctrl+V (붙여넣기) 단축키]하세요", url);
+    }
+}
+
+function upload(w)
+{    
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+<?php } else {?>    
+    var f = document.upload_conv_form;
+    if (typeof w == 'undefined') {
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+        f.action = '/service/ele_file_upload.php';
+    } else {
+        document.getElementById('upload_button').style.display = 'none';      
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+        f.action = '/service/ele_file_upload.php';
+    }
+    (function($){
+        if(!document.getElementById("fileupload_fr")){
+            var i = document.createElement('iframe');
+            i.setAttribute('id', 'fileupload_fr');
+            i.setAttribute('name', 'fileupload_fr');
+            i.style.display = 'none';
+            document.body.appendChild(i);
+        }
+        f.target = 'fileupload_fr';
+        f.submit();
+    })(jQuery);
+<?php }?>      
+}
+
+
+function byte_check(wr_message, sms_bytes)
+{
+    var conts = document.getElementById(wr_message);
+    var bytes = document.getElementById(sms_bytes);
+    var limitbytes = document.getElementById('limt_bytes');
+    var i = 0;    
+    var cnt = 0;
+    var exceed = 0;
+    var ch = '';
+
+    for (i=0; i<conts.value.length; i++)
+    {
+        ch = conts.value.charAt(i);
+        if (escape(ch).length > 4) {
+            cnt += 2;
+        } else {
+            cnt += 1;
+        }
+    }
+
+    bytes.innerHTML = cnt;    
+
+<?php if ($LMS_flag == true) { ?>
+      if (scf == true){
+          if (cnt < <?=$MaxLimit_len?>) {
+                scf = false;
+          }          
+    }
+
+    if (scf == true){
+        chkLen = <?=$Long_MaxLimit_len ?>;
+
+    } else {
+        chkLen = <?=$MaxLimit_len ?>;
+    }
+    limitbytes.innerHTML = chkLen; 
+    if (cnt > chkLen)
+    {
+        exceed = cnt - chkLen;
+
+        if (chkLen == <?=$MaxLimit_len ?>){
+                if (confirm('sms(단문)전송용량(<?=$MaxLimit_len?>byte)를 초과하여\n\nlms(장문)으로 전환됩니다.\n\nlms 발송시 건당 20원의 요금이 추가로 청구됩니다')){
+                    scf = true;
+                    limitbytes.innerHTML = <?=$Long_MaxLimit_len ?>; 
+                    if (cnt > <?=$Long_MaxLimit_len ?>) {
+                            chkLen = <?=$Long_MaxLimit_len ?>;
+                    }  else {
+                        return;  
+                    }                                       
+                }
+        } else {          
+                alert('메시지 내용은 <?=$MaxLimit_len?>바이트를 넘을수 없습니다.\n\n작성하신 메세지 내용은 '+ exceed +'byte가 초과되었습니다.\n\n초과된 부분은 자동으로 삭제됩니다.');
+        }        
+        var tcnt = 0;
+        var xcnt = 0;
+        var tmp = conts.value;
+        for (i=0; i<tmp.length; i++)
+        {
+            ch = tmp.charAt(i);
+            if (escape(ch).length > 4) {
+                tcnt += 2;
+            } else {
+                tcnt += 1;
+            }
+
+            if (tcnt > chkLen) {
+                tmp = tmp.substring(0,i);
+                break;
+            } else {
+                xcnt = tcnt;
+            }
+        }
+        conts.value = tmp;
+        bytes.innerHTML = xcnt;        
+        return;
+    }
+<?php  } else { ?>
+    if (cnt > <?=$MaxLimit_len?>)
+    {
+        exceed = cnt - <?=$MaxLimit_len?>;
+        alert('메시지 내용은 <?=$MaxLimit_len?>바이트를 넘을수 없습니다.\n\n작성하신 메세지 내용은 '+ exceed +'byte가 초과되었습니다.\n\n초과된 부분은 자동으로 삭제됩니다.');
+        var tcnt = 0;
+        var xcnt = 0;
+        var tmp = conts.value;
+        for (i=0; i<tmp.length; i++)
+        {
+            ch = tmp.charAt(i);
+            if (escape(ch).length > 4) {
+                tcnt += 2;
+            } else {
+                tcnt += 1;
+            }
+
+            if (tcnt > <?=$MaxLimit_len?>) {
+                tmp = tmp.substring(0,i);
+                break;
+            } else {
+                xcnt = tcnt;
+            }
+        }
+        conts.value = tmp;
+        bytes.innerHTML = xcnt;        
+        return;
+    }
+<?php  } ?>  
+} 
+</script>

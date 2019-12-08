@@ -1,0 +1,86 @@
+.calendar tfoot .ttip .error { color: #c20; }
+.calendar tfoot tr.time td { padding: 0; border-top: 1px solid; }
+.calendar tfoot tr.time td.timetext { text-align: center; }
+.calendar tfoot tr.time table td,
+.calendar tfoot tr.time td.hilite,
+.calendar tfoot tr.time td.active { border: 0; padding: 0; }
+.calendar tfoot tr.time td.hour,.calendar tfoot tr.time td.minute { text-align: right; font-weight: bold; border-right: 1px solid; padding: 0 1px 0 3px; }
+.calendar tfoot tr.time td.colon { text-align: center; font-weight: bold; background: transparent; }
+.calendar tfoot tr.time td.ampm { text-align: center; }
+.calendar-time-scroller { border-left: 1px solid; border-right: 1px solid; }
+.calendar-time-scroller .up { width: 11px; background: transparent url("../images/SF01/scroller-up.gif") no-repeat 50% 50%; height: 0.5em; }
+.calendar-time-scroller .down { width: 11px; background: transparent url("../images/SF01/scroller-down.gif") no-repeat 50% 50%; height: 0.5em; }
+.calendar .combo { position: absolute; display: none; top: 0px; left: 0px; width: 4em; cursor: default; border: 1px solid; font-size: 16px; }
+.calendar { z-index: 100; }
+.calendar .combo .label,.calendar .combo .label-IEfix { text-align: center; padding: 1px; }
+.calendar .combo .label-IEfix { width: 4em; }
+.calendar .combo .disabled { color: #888; }
+.calendar .history { width: 18em; }
+.calendar .history .label { text-align: center; }
+.calendar .history .label-IEfix { width: 18em; }
+.calendar { position: relative; display: none; border: 2px solid; font-size: 16px; cursor: default; font-family: tahoma,verdana,sans-serif; }
+.calendar table { border: 1px solid; font-size: 16px; cursor: default; font-family: tahoma,verdana,sans-serif; }
+.calendar .button { text-align: center; padding: 1px; border: 1px solid; }
+.calendar .nav {}
+.calendar thead .title { font-weight: bold; padding: 1px; border: 1px solid; text-align: center; }
+.calendar thead .headrow { }
+.calendar thead .daynames { }
+.calendar thead .name { border-bottom: 1px solid; padding: 2px; text-align: center; }
+.calendar thead .weekend { }
+.calendar thead .hilite { border: 2px solid; padding: 0px; }
+.calendar thead .active { padding: 2px 0px 0px 2px; border: 1px solid; }
+.calendar tbody .day { width: 2em; text-align: right; padding: 2px 4px 2px 2px; }
+.calendar tbody .day.othermonth { font-size: 80%; }
+.calendar tbody .day.othermonth.oweekend {}
+.calendar table .wn { padding: 2px 3px 2px 2px; border-right: 1px solid;}
+.calendar tbody .rowhilite td {}
+.calendar tbody .rowhilite td.wn {}
+.calendar tbody td.hilite { padding: 1px 3px 1px 1px; border: 1px solid; }
+.calendar tbody td.active { padding: 2px 2px 0px 2px; border: 1px solid; }
+.calendar tbody td.selected { font-weight: bold; border: 1px solid; padding: 2px 2px 0px 2px; }
+.calendar tbody td.weekend { }
+.calendar tbody td.today { font-weight: bold; }
+.calendar tbody .disabled { color: #999; } 
+.calendar tbody .emptycell { visibility: hidden; }
+.calendar tbody .emptyrow { display: none; }
+.calendar tfoot .footrow { }
+.calendar tfoot .ttip { padding: 1px; border: 1px solid; text-align: center; }
+.calendar .combo { padding: 1px; }
+.calendar .combo .active { padding: 0px; border: 1px solid; }
+.zpCalDayInfo { background-color: yellow; font-size: 80%; }
+.zpCalSpecialDay { background-color: #cccccc; }
+.calendar { border-color: #efebde #736d63 #736d63 #efebde; border-width: 1px; color: #000; background-color: #efebde; }
+.calendar table { border-color: #fff #adaa9c #adaa9c #fff; }
+.calendar .button { border-color: #fff #adaa9c #adaa9c #fff; }
+.calendar thead .title { border: none; background-color: #8f8b7e; color: #fff; font-size: 16px; font-family:KP CheonRiMaChe,WKLGothic,PRK P Gothic,Gulim,Dotum; }
+.calendar thead .headrow { }
+.calendar thead .daynames { }
+.calendar thead .name { border-color: #000; background-color: #f4f0e8; }
+.calendar thead .weekend { color: #f00; }
+.calendar thead .hilite,.calendar tbody .hilite,.calendar tfoot .hilite { border-color: #fff #adaa9c #adaa9c #fff; background-color: #fffbfe; }
+.calendar thead .active { padding: 2px 0px 0px 2px; border-color: #adaa9c #fff #fff #adaa9c; background-color: #dfdbce; }
+ .calendar tbody .day { }
+.calendar tbody .day.othermonth { color: #888; }
+.calendar tbody .day.othermonth.oweekend { color: #e88; font-size: 16px; }
+.calendar table .wn { border-color: #8f8b7e; background-color: #f4f0e8; color: #6f6b5e; }
+.calendar tbody .rowhilite td { background-color: #f4f0e8; }
+.calendar tbody .rowhilite td.wn { background-color: #efebde; color: #000; }
+.calendar tbody td.hilite { border-color: #fff #adaa9c #adaa9c #fff; }
+.calendar tbody td.active { border-color: #adaa9c #fff #fff #adaa9c; font-size: 12px; }
+.calendar tbody td.selected { border-color: #adaa9c #fff #fff #adaa9c; background-color: #fffbee; }
+.calendar tbody td.weekend { color: #f00; }
+.calendar tbody td.today { color: #00f; font-size: 16px; }
+.calendar tbody td.holiday { font-weight:bold; font-size:16px; color: red; }
+.calendar tbody .disabled { color: #999; }
+.calendar tfoot .ttip { border-color: #adaa9c #fff #fff #adaa9c; color: #000; font-size: 16px; }
+.calendar tfoot .active { border-color: #000 #fff #fff #000; }
+.calendar .combo { border-color: #fff #adaa9c #adaa9c #fff; background-color: #efebde; }
+.calendar .combo .active { background-color: #dfdbce; border-color: #adaa9c #fff #fff #adaa9c; }
+.calendar .combo .hilite { background-color: #0041ac; color: #fff; }
+.calendar tfoot tr.time td { border-color: #8f8b7e; }
+.calendar tfoot tr.time table td { background-color: #efebde; }
+.calendar tfoot tr.time td.hour,
+.calendar tfoot tr.time td.minute { border-color: #cdcabc; background-color: #fffbee; }
+.calendar tfoot tr.time td.hilite { background-color: #8cf; }
+.calendar tfoot tr.time td.active { background-color: #48f; }
+.calendar-time-scroller { border-color: #adaa9c; }

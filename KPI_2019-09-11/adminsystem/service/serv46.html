@@ -1,0 +1,163 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가   
+
+$g5['title'] = "휴대폰번호 파일";
+
+$no_group = sql_fetch("select bg_no,bg_name,bg_count,bg_member,bg_nomember,
+ifnull((select count(*) from {$g5['sms5_book_table']} as sg5 where sg5.bg_no = 1 and mb_no = '{$member['mb_no']}' and bk_receipt= 1),0) as bg_receipt,    
+bg_reject from {$g5['sms5_book_group_table']} where bg_no=1 ");
+
+$group = array();
+$qry = sql_query("select bg_no,bg_name,bg_count,bg_member,bg_nomember,
+ifnull((select count(*) from {$g5['sms5_book_table']} as sg5 
+    where sg5.bg_no = w.bg_no and mb_no = '{$member['mb_no']}' and bk_receipt= 1),0) as bg_receipt,    
+bg_reject from {$g5['sms5_book_group_table']} as w where bg_no > 1 and bg_member = '{$member['mb_no']}'  order by bg_name");
+while ($res = sql_fetch_array($qry)) array_push($group, $res);
+?>
+   <div class="subTopTab">
+    <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>휴대폰 번호파일</span></a></li>
+           
+    </ul>
+    </div>
+
+<div class="titlegroup">
+        <em>휴대폰 번호파일</em>      
+         <div class="navgroup">     
+                 <p>Home <span class="rt">&gt;</span> 전화번호관리 <span class="rt">&gt;</span> 휴대폰 번호파일</p>
+        </div>     
+</div>
+<!-- 휴대폰번호파일 -->
+<div class="phonegroup">
+<div class="phonegroupin">
+<div class="phonegroupwrap">
+
+<div id="fileup_help" ><img src="/service/images/excelphonebook.png"><p>엑셀 예</p></div>            
+<div id="fileup_helpInfo" class="local_desc01 local_desc">
+    <h2>파일 업로드</h2>
+    <p>
+<!--        엑셀에 저장된 휴대폰번호 목록을 데이터베이스에 저장할 수 있습니다. -->
+    </p>
+    <p>
+<!--        엑셀에는 이름과 휴대폰번호 두개만 저장해주세요. 첫번째 라인부터 저장됩니다.<br> -->
+        ※ 휴대폰번호에 하이픈(-)은 포함되어도 되고 포함되지 않아도 됩니다.
+    </p>
+    <br>
+    <p>
+        연락처가 없는 에듀파인 데이터를 사용하여 개별고지 하려면<br>
+        이름,전화번호,학년,반,번호,학부모구분(학부모면 빈칸, 학부모가 아니면 글자 한자이상 ) <br>
+        같은 데이터가 두개 이상인 경우 마지막 데이터를 사용합니다.<br>
+        학년 반으로 그룹명을 자동 생성합니다.(학년 반이 없을 경우 지정된 그룹으로 등록)
+    </p>    
+    <p>
+        <strong>엑셀파일은 xlsx 확장자로 저장하여 업로드 하십시오.</strong> <br>
+<!--        <strong>엑셀파일은 XLS, XLSX 또는 CSV형식만 업로드 할수 있습니다.</strong> <br>
+        <strong>CSV 저장방법 : 파일 > 다른 이름으로 저장 > 파일형식 : CSV (쉼표로 분리) (*.CSV)</strong><br> -->
+        <strong>※ 주의) 암호가 걸려있는 파일은 처리되지 않습니다!!!(암호 해제후 업로드)</strong>
+    </p>
+</div>
+
+<form name="upload_form" method="post" enctype="multipart/form-data" id="sms5_fileup_frm">
+<div>    
+    <label for="upload_bg_no" id="bgno_label">그룹선택</label>
+    <select name="upload_bg_no" id="upload_bg_no">
+        <option value=""></option>
+        <option value="1"> <?php echo $no_group['bg_name']?> (<?php echo number_format($no_group['bg_receipt'])?>) </option>
+        <?php for ($i=0; $i<count($group); $i++) { ?>
+        <option value="<?php echo $group[$i]['bg_no']?>"> <?php echo $group[$i]['bg_name']?> (<?php echo number_format($group[$i]['bg_receipt'])?>) </option>
+        <?php } ?>
+    </select>
+     <span class="gr_add_mng td_mng">
+              <a href="/serv.php?m1=4&m2=2" class="btnG2">그룹 추가 화면으로 </a>
+     </span>    
+     <span class="gr_add_mng td_mng">
+              <a href="/serv.php?m1=4&m2=6" class="btnG2">그룹 선택으로 </a>
+     </span>  
+
+</div>
+
+<div id="sms5_fileup">
+    <label for="csv">파일선택</label>    
+    <input type="file" name="csv" id="csv" onchange="sel_upbtn()">
+    <span id="upload_button">
+        <input type="button" value="파일전송" onclick="upload();" class="btn_submit">
+    </span>
+    <span id="uploading" class="sms_fileup_hide">
+        파일을 업로드 중입니다. 잠시만 기다려주세요.
+    </span>
+
+    <div id="upload_info" class="sms_fileup_hide"></div>
+    <div id="register" class="sch_last sms_fileup_hide">
+        휴대폰번호를 저장중 입니다. 잠시만 기다려주세요.
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script>
+function sel_upbtn(){
+    fval = document.getElementById('csv').value;
+    if (fval == ''){
+        document.getElementById('upload_button').style.display='none';  
+        document.getElementById('upload_info').style.display='none';
+    } else {
+            document.getElementById('upload_button').style.display='inline';  
+            document.getElementById('upload_info').style.display='block';
+    }    
+    var ifrmae = window.frames['fileupload_fr'];
+    if(ifrmae){
+        ifrmae.document.body.innerHTML = '';             
+    }
+}
+
+function upload(w)
+{
+    if (!document.getElementById('upload_bg_no').value) {
+        alert('그룹을 선택해주세요.');    
+        return false;
+    }
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>                 
+    var f = document.upload_form;
+    document.getElementById('upload_bg_no').style.display = 'none';
+    document.getElementById('bgno_label').innerHTML = '그룹선택&nbsp&nbsp&nbsp'+$( "#upload_bg_no option:selected" ).text();
+    if (typeof w == 'undefined') { 
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('uploading').style.display = 'inline';
+        document.getElementById('upload_info').style.display = 'none';
+        f.action = '/service/num_book_file_upload.php?confirm=1';
+    } else {
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('upload_info').style.display = 'none';
+        document.getElementById('register').style.display = 'block';
+        f.action = '/service/num_book_file_upload.php';
+    }
+    (function($){
+        if(!document.getElementById("fileupload_fr")){
+
+            var i = document.createElement('iframe');            
+            i.setAttribute('id', 'fileupload_fr');
+            i.setAttribute('name', 'fileupload_fr');
+            i.setAttribute('width', '100%');
+            i.setAttribute('onload',"autoResize(this);"); 
+            //i.style.display = 'none';
+            document.getElementById("sms5_fileup").appendChild(i);
+        }
+        $('#fileupload_fr').html('');
+        f.target = 'fileupload_fr';
+        f.submit();
+    })(jQuery);
+<?php } ?>    
+}
+
+function autoResize(i)
+{
+    var iframeHeight=
+    (i).contentWindow.document.body.scrollHeight;
+    (i).height=iframeHeight+20;
+}
+</script>

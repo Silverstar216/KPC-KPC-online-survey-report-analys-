@@ -1,0 +1,131 @@
+questions_groups:		설문그룹테블
+	survey_id:			설문ID
+	number:				그룹번호
+	title:				그룹제목
+	question_count:		그룹에 속한 질문수
+
+questions:				설문테블(개별문항)
+	survey_id:
+	question_group_id:	그룹ID
+	number:				질문번호(그룹안에서 순서번호)
+	type:				질문형태(객관식:0, 주관식:1, 만족도:2, 강사만족도:3)
+	question:			질문(본문)
+	question_img_url:	질문이미지
+	example_count:		질문에 응답하는 샘플개수(네이버, 친구...), 만족도, 강사만족도일대는 별개수, 주관식일때 입력창수 개수
+	exam_object_count:	강사만족도일때 평가대상개수
+	exam_kind_count:	강사만족도일때 평가지표개수
+	type_grade:			
+	final:
+	flag:				????--맞춤형?공개형
+	allow_reply_response:
+	use_other_input:	복수선택가능
+	allow_unselect:		미선택가능
+	allow_random_align:	보기순서 임의로 배열
+	end_comment_index:	?마지막보기(주관식)
+	rating_move_value:	..으로 이동
+	reverse_question:	역문항체크(만족도에서)
+	rating_names:		만족정도이름라열
+
+question_exam_kinds:	강사평가지표목록테블(강사만족도에서)
+	question_id:		문항(질문)ID
+	number:				평가지표번호(순서)
+	title:				평가지표제목(title)
+	content:			평가지표내용
+
+quesion_exam_objects:	강사대상평가
+	question_id:
+	number:
+	title:				강사이름(평가대상)
+	profile:			그림경로
+
+examples:				객관식 옵션항목
+	question_id:
+	number:
+	img_url:			객관식 보기 이미지 삽입시 경로	
+	title:				보기(객관식 옵션항목명)
+	type:
+	flag:
+	question_move:		번문항으로 이동
+
+survey_end:				설문 3단계 테블
+	survey_id:
+	id:					번호
+	content:			내용
+
+notices:				메세지 결과(설문메세지, 문자메세지 다 포함)
+	id
+	content:			메쎄지내용
+	message_type(0,1):	1:설문메시지 ? 0:문자메세지	
+	message_kind(0,1):	0:sms ? 1:LMS	
+	attached_id:		첨부파일 테이블 id
+	attached:			첨부파일이 있는가?	
+	file_url:			첨부파일 url
+	status
+	mobile_count:		전송한 수강생전화번호개수
+	trans_success:	
+	trans_failed:
+	reply_count:		조회회수
+	trans_error:
+	trans_proceeding:
+	calling_number:		전화번호(발신자)
+	calling_name:
+	user_id:
+	flag(0):
+	start_time:			예약시간
+	created_at
+	updated_at
+	survey_id:
+	reserve_flag:
+	em_ukey:
+
+
+
+msg_result:				메시지 전송결과(개별 수신자들한데 일일히...)
+	mseq:
+	msg_type(1,3):		1:SMS ? 3:LMS
+	send_type(1):		1:즉시발송 ? 예약전송 
+	dkey:
+	dcnt:
+	dstaddr:			수신자 전화번호
+	callback:			발신자 전화번호
+	stat(3):			
+	subject:			설문지메시지인경우 설문지제목
+	text_type(0):
+	text2:
+	text:				메시지 내용(url포함)-수신자들에게 도착하는 메시지내용
+	expiretime(86400):
+	filecnt:			첨부파일개수
+	fileloc1~fileloc5:	첨부파일 url
+	filesize1~filesize5:첨부파일 용량
+	filecnt_checkup(0):	
+	insert_time:
+	request_time:		전송요청시간
+	send_time:			전송된시간
+	report_time:
+	tcprecv_time:
+	save_time
+	telecom:
+	result(100):
+	repcnt(0):	
+	server_id
+	opt_id
+	opt_cmp
+	opt_post
+	opt_name:
+	ext_col0~ext_col3
+
+	notice_id:
+	pseq:
+	sender_key
+	k_template_code:
+	k_exiretime(180):
+	k_button_name
+	k_button_url:
+	k_img_link_url
+	k_next_type(0)
+
+	user_id:
+	user_msg_type(5, 3):3:SMS ? 5:LMS
+
+
+

@@ -1,0 +1,135 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가 
+  set_session('ele_conv_s', true);
+?>
+<div id="sub_content">  
+   	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td><img src="/service/images/title02_01.png" ></td>
+        <td align="right"><img src="/service/images/home.png" width="2" height="2"> <strong>홈</strong> &lt; 문서변환</td>        
+      </tr>
+    </table></td>
+  </tr>
+  <tr><td height="40"></td></tr>
+</table>  
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" class="board_type01">
+              <tr>
+                <td class="board_type01_td">
+<form name="upload_conv_form" method="post" enctype="multipart/form-data" id="svc_fileup_frm">                      
+                 <input type="hidden" name="udoc" id="udoc" value="">
+                 <input type="hidden" name="udcn" id="udcn" value="">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td><img src="/service/images/sub02_01_txt01.png" ></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="file" name="conv_up_file" id="conv_up_file" style="width:480px;" onchange="sel_cFile();">
+                    <span id="upload_button"><input type="button" value="올리기" onclick="upload();" class="btn_submit"></span></td>
+                  </tr>
+                </table>   
+</form>                
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:30px;" >
+                    <tr>
+                      <td width="40" height="32"><img src="/service/images/sub02_01_txt02.png"></td>
+                      <td bgcolor="#FFFFFF" ><div id="file_url_s">변환할 문서를 먼저 선택하십시오.</div>
+                       <div id='btn_cpyview'><img src="/service/images/btn_copy.png" onclick="Copy_to_clipboard();"></div>                        
+                       <div id='btn_preview'><img src="/service/images/btn_preview.png"  onclick="opennewwindow();"></div>
+                     </td>
+                    </tr>
+                </table>
+              </td>
+              </tr>
+               <tr>
+    <td><img src="/service/images/img03_01.png"></td>
+  </tr>
+            </table>
+                <div id="file_up_loading" class="file_up_sloading">
+                  <img src="/img/ajax_loader.gif"><p>파일 업로드 및 변환중... 잠시만 기다려주십시오...</p>
+                </div>                            
+</div>
+<script type="text/javascript"> 
+function checkFileExt(ext){ 
+  pathpoint = ext.lastIndexOf('.'); 
+  filepoint = ext.substring(pathpoint+1,ext.length); 
+  filetype = filepoint.toLowerCase(); 
+  if (filetype == 'jpg'||filetype == 'jpeg'|| filetype == 'hwp'|| filetype == 'xls'|| filetype == 'xlsx'|| filetype == 'doc'|| filetype == 'docx'|| filetype == 'pdf'){
+         return true; 
+  }else{
+         alert('변환 가능한 문서 형식이 아닙니다!!!');
+         return false; 
+  } 
+} 
+function sel_cFile(){
+    fval = document.getElementById('conv_up_file').value;
+    if (fval == ''){
+        document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';    
+        document.getElementById('upload_button').style.display='none';  
+        document.getElementById('btn_preview').style.display = 'none';
+        document.getElementById('btn_cpyview').style.display = 'none';
+    } else {
+        if (checkFileExt(fval)) {
+            document.getElementById('file_url_s').innerHTML = '선택된 문서를 파일전송 하십시오.';
+            document.getElementById('upload_button').style.display='inline';  
+        } else {
+          document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';    
+          document.getElementById('upload_button').style.display='none';            
+        }
+        document.getElementById('btn_preview').style.display = 'none';
+        document.getElementById('btn_cpyview').style.display = 'none';
+    }    
+    document.getElementById('file_up_loading').style.display='none';  
+}
+
+function opennewwindow(){   
+      var url = document.getElementById('file_url_s').innerHTML;
+      window.open(url);
+}
+
+function Copy_to_clipboard()
+{
+    var url =  document.getElementById('file_url_s').innerHTML;
+    var IE=(document.all)?true:false;
+    if (IE) {
+      window.clipboardData.setData("Text", url);
+      alert('변환문서 주소가 복사되었습니다.\n\nCtrl+V (붙여넣기) 단축키를 이용하시면,\n주소를 붙여 넣으실 수 있습니다.');
+    } else {
+      temp = prompt("Ctrl+C를 눌러 복사 후 사용[Ctrl+V (붙여넣기) 단축키]하세요", url);
+    }
+}
+
+function upload(w)
+{    
+
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+<?php } else {?>  
+    var f = document.upload_conv_form;
+    if (typeof w == 'undefined') {
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+        f.action = '/service/ele_file_upload.php';
+    } else {
+        document.getElementById('upload_button').style.display = 'none';      
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+        f.action = '/service/ele_file_upload.php';
+    }
+    (function($){
+        if(!document.getElementById("fileupload_fr")){
+            var i = document.createElement('iframe');
+            i.setAttribute('id', 'fileupload_fr');
+            i.setAttribute('name', 'fileupload_fr');
+            i.style.display = 'none';
+            document.body.appendChild(i);
+        }
+        f.target = 'fileupload_fr';
+        f.submit();
+    })(jQuery);
+<?php }?>      
+}
+</script>

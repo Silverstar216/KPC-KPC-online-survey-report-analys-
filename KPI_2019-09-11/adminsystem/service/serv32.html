@@ -1,0 +1,391 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가 
+
+  include_once('service/epoll_func.php');
+
+if (isset($audoc)) {
+    $udoc = $audoc;
+    $udcn = $audcn;
+    $stitle = $astitle;  
+    $letter_attache_flag = true;
+    $letter_attache_text = '<span id="attachfile_info">연결문서 : '.$udcn.'</span>';
+} else {
+    $letter_attache_flag = false;
+    $letter_attache_text = '';    
+}
+
+$recreate_flag = false;    
+
+if (isset($rcn)) {
+    $vcn = $rcn;
+    $recreate_flag = true;    
+    if (isset($fcn)) {
+      $rcn = '';
+    }
+} 
+$person_info_row = get_list_poll_person_info_row(); 
+
+?>
+<div class="subTopTab">
+  <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>회신문서</span></a></li>           
+  </ul>
+</div>
+<div class="titleBox">
+<?php if ($letter_attache_flag == true) { ?>    
+  <em>회신이 필요한 가정통신문<?=$letter_attache_text ?></em> 
+<?php } else { ?>  
+  <em>회신문서</em> 
+<?php } ?>    
+  <div class="resend">
+      <div class="bca">
+          <div class="breadCrumbs scBasic">
+              <p>Home <span class="rt">&gt;</span> 가정통신문 문자 <span class="rt">&gt;</span> 회신문서</p>
+          </div>
+      </div>
+      <div id="tempPollPan" ></div>
+      <form name="form_poll" id="form_poll" method="post" action="/service/poll_write_send.php" onsubmit="return poll_chk_send(this);"  > 
+<?php if ($letter_attache_flag == true) { ?>
+            <input type="hidden" name="udoc" id="udoc" value="<?=$udoc?>">          
+            <input type="hidden" name="udcn" id="udcn" value="<?=$udcn?>">          
+            <input type="hidden" name="stitle" id="stitle" value="<?=$stitle?>">          
+<?php }?>
+<div id = "poll_make_pan">
+
+      <div class="graybox">
+            <div>
+                <p><strong>회신문서 제목을 입력해주세요(한글 30자 이내)</strong></p>
+                <input type="text" name="m_title" id="m_title" class="t1" required class="required">                      
+            </div>  
+            <div id ="poll_as_type" class="info">      
+                <strong>회신자 정보</strong>       
+                <select name="as_type" id="as_type">
+<?php 
+  $pcnt = count($person_info_row);
+  for ($pdx=0;$pdx<$pcnt;$pdx++){
+      echo "<option value='{$person_info_row[$pdx]['epli_ilbh']}'>{$person_info_row[$pdx]['epli_sel_title']}</option>";
+  }
+?>                        
+               </select>                   
+            </div>
+
+            <div class="savebtn">                       
+                <input type="hidden" name="ep" id="ep" value="<?=$rcn?>">                    
+                <input type="hidden" name="uk" id="uk" value="i">                    
+                <input  type="submit" name ="btn_poll_save" class="btnW2" value="저장" onclick="document.pressed=this.value">         
+                <input type="checkbox" name="save_tmp" id="save_tmp">
+                <label for="save_tmp">공개</label>          
+                <input type="button" value="저장목록"  class="btnW2" onclick="poll_temp_list();">                
+            </div>
+      </div>               
+      <div id="last_line"></div>
+</div><!--// poll_make_pan //-->
+<div class="graybox">
+  <div class="ans2"><input type="button" value="질문추가"  class="btn_q_add"> </div>
+</div>
+     
+      <div class="sendbtn">
+        <input type="hidden" name="polltype" value="1">                    
+        <div class="priviewtxt">미리보기로 확인 후 전송하십시오</div>
+        <input type="submit" name ="btn_poll_send" id="btn_poll_send" value="다 음"  class="mr20 btnT1" onclick="document.pressed=this.value"> 
+        <input type="submit" name ="btn_poll_preeview" id="btn_poll_preeview" value="미리보기"  class="mr20 btnW1" onclick="document.pressed=this.value"> 
+      </div>  
+ </form>
+  </div>  <!-- .resend -->      
+</div><!-- .titleBox -->
+ <script type="text/javascript"> 
+
+   poll_temp_list = function(para){        
+        $.ajax({
+            url: "<?=G5_URL?>/service/ele_poll_recreate_list.php",
+            cache:false,
+            timeout : 30000,
+            dataType:'html',
+            data:para,
+            type:'get',
+            success: function(data) {  
+               if (data == 'not') {                    
+               } else {
+                  shtml = data;
+                  $('#tempPollPan').html(shtml);                  
+                  $('#tempPollPan').fadeIn('slow');                      
+               }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //alert(xhr.status);
+                //alert(thrownError);
+            }
+        });
+    };    
+   function get_temp_poll(rn){    
+        <?php
+          if (isset($audoc)) {
+        ?> 
+                thisUrl = "<?php echo $_SERVER['PHP_SELF'];?>?m1=3&m2=2&audoc=<?=$audoc?>&audcn=<?=$audcn?>&astitle=<?=$astitle?>&rcn="+rn;
+        <?php } else {?>
+                thisUrl = "<?php echo $_SERVER['PHP_SELF'];?>?m1=3&m2=2&rcn="+rn;
+        <?php }  ?>
+          location.replace(thisUrl);         
+   }
+   function poll_preView(f){
+          window.open("", "preview");
+          f.target = "preview";
+          f.action = "../v4el_poll.php";
+          f.submit();    
+   }
+   function poll_chk_send(f){
+        if ($('#m_title').attr('value') == '') {
+           alert('회신 문서 제목을 입력해주세요.');
+           $('#m_title').focus();
+          return false;
+        }
+        if ($('.quest_title').size() < 1) {
+           alert('질문이 없습니다!!');
+           return false;   
+        }
+        for (idx =0 ; idx <  $('.quest_title').size(); idx++) {
+            if ($('.quest_title').eq(idx).attr('value') == '')   {
+                  alert('질문을 입력하십시오!!!');
+                  $('.quest_title').eq(idx).focus();
+                  return false;   
+            }
+        }      
+        for (idx=0;idx< $('.pollpan').size();idx++){
+            pscnt =$('.pollpan').eq(idx).children('.pollsel').size();
+            pobj   = $('.pollpan').eq(idx);
+            if (pobj.children('.pollsel_extra').first().children('.dup_class').first().is(':checked') == true){
+               pobj.children('.pollsel_extra').first().children('.dup_id').first().attr('value','Y');
+            } else {
+               pobj.children('.pollsel_extra').first().children('.dup_id').first().attr('value','N');
+            }                              
+            if (pscnt==0) {
+                if (pobj.children('.pollsel_extra').first().children('.extra_txt').first().is(':checked') == true){
+                   pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','Y');
+                } else {
+                  if (pobj.children('.pollsel_extra').first().children('.no_answer').first().is(':checked') == true){
+                      pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','O'); 
+                  } else {
+                      pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','N'); 
+                  }                   
+                }                              
+                if (pobj.children('.pollsel_extra').first().children('.extra_txt').first().is(':checked') == false) {
+                  alert('답변항목이 있거나 입력칸이 있어야 합니다!!!');
+                  pobj.children('.poll_q_title').first().children('.quest_title').first().focus();
+                  return false;                  
+                }
+            } else {      
+                    if (pscnt==1) {                          
+                            alert('답변항목 2개 이상이거나 입력칸이 있어야 합니다!!!');
+                            pobj.children('.poll_q_title').first().children('.quest_title').first().focus();
+                            return false;                  
+                    }          
+                    if (pobj.children('.pollsel_extra').first().children('.extra_txt').first().is(':checked') == true){
+                       pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','Y');
+                    } else {
+
+                      if (pobj.children('.pollsel_extra').first().children('.no_answer').first().is(':checked') == true){
+                          pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','O'); 
+                      } else {
+                          pobj.children('.pollsel_extra').first().children('.extra_id').first().attr('value','N');
+                      }                      
+                       
+                    }
+                    for(jdx=0;jdx<pscnt;jdx++) {
+                          if (pobj.children('.pollsel').eq(jdx).children('.answer_title').first().attr('value') == '')   {
+                                alert('답변 항목을 입력하십시오!!!');
+                                pobj.children('.pollsel').eq(jdx).children('.answer_title').first().focus();
+                                return false;   
+                          }
+                          pobj.children('.pollsel').eq(jdx).children('.answer_title').first().attr('name','answer_title'+idx+'[]');
+                     } // if els jdx for end;    
+            } // if pcnt els end;
+        }// idx for end 
+         if(document.pressed == "미리보기") {
+            poll_preView(f);
+            return;
+        }
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>                      
+         if(document.pressed == "저장") {       
+         if ($('#save_tmp').is(':checked')) {
+                $('#save_tmp').attr('value','Y');
+         } else {
+                $('#save_tmp').attr('value','N');
+         }
+          ep = $('#ep').attr('value');
+          if (ep == '') { $('#uk').attr('value','i');          } else {
+                if (confirm("변경하시겠습니까?(취소시 신규)") == true){    
+                              $('#uk').attr('value','u');          
+                  }else{   //취소
+                      $('#uk').attr('value','i');     
+                  }                      
+          }
+          var formData = $("#form_poll").serialize();
+          $.ajax({
+              url: "<?=G5_URL?>/service/recreate_poll_up.php",
+              cache:false,
+              timeout : 30000,
+              data : formData,
+              dataType:'html',
+              type:'Post',
+              success: function(data) {  
+                 if (data == 'not') {    
+                 } else {    
+                      $('#ep').attr('value',data);
+                 }
+              },
+              error: function (xhr, ajaxOptions, thrownError) {
+              }
+          });
+
+            return false;
+        }          
+        f.target = "";
+        f.action = "/service/poll_write_send.php";
+        return true;
+<?php } ?>                              
+   }  
+$(function(){ 
+     $("body").on("click",".btn_a_add", function(e) {
+        var pidObj = $(this).parent().parent();
+        add_answer(pidObj);
+        ReSet_Answer(pidObj);
+    });     
+     $("body").on("click",".btn_a_del", function(e) {
+        var pidObj = $(this).parent();
+        var ppidObj = $(this).parent().parent();
+        pidObj.remove();
+        ReSet_Answer(ppidObj);
+    });     
+    $("body").on("click",".btn_q_up", function(e) {
+        var pidObj = $(this).parent().parent();        
+        pidObj.insertBefore(pidObj.prev());
+        ReSet_ID();
+    });      
+    $("body").on("click",".btn_q_dn", function(e) {
+        var pidObj = $(this).parent().parent();        
+        pidObj.insertAfter(pidObj.next());
+        ReSet_ID();
+    });      
+    $("body").on("click",".btn_a_up", function(e) {
+        var pidObj = $(this).parent();        
+        var ppidObj = $(this).parent().parent();
+        pidObj.insertBefore(pidObj.prev());
+        ReSet_Answer(ppidObj);
+    });      
+    $("body").on("click",".btn_a_dn", function(e) {
+        var pidObj = $(this).parent();        
+        var ppidObj = $(this).parent().parent();
+        pidObj.insertAfter(pidObj.next());
+        ReSet_Answer(ppidObj);
+    });         
+     $("body").on("click",".btn_q_del", function(e) {
+        var pidObj = $(this).parent().parent();
+        pidObj.remove();
+        ReSet_ID();
+    });     
+    $(".btn_q_add").click(function(){
+        add_question();  
+        ReSet_ID();
+    });
+    $(".btn_q_Test").click(function(){
+        ReSet_q_updown();
+    });  
+});
+function add_question(){
+      var q_pan = '<div class="pollpan">';
+                       q_pan +='<div class ="poll_q_title"> ';
+                             q_pan +='<label class="qidlbl" for="quest_title"></label> ';
+                             q_pan +='<input class= "quest_title" name="quest_title[]" type="text" required class="required" value=""> ';
+                             q_pan +='<button class="btn_q_del" type="button">- 질문삭제</button> ';
+                             q_pan +='<button class="btn_a_add" type="button">+ 답변추가</button> ';
+                       q_pan +='</div> ';
+                       q_pan +='<div class ="pollsel_extra"> ';
+                             q_pan +='<input type="checkbox" class = "extra_txt" " > ';
+                             q_pan +='<input type="hidden" class = "extra_id" name="extra_txt[]" > ';                             
+                             q_pan +='<label for="extra_txt">기타 입력 사용</label> ';        
+                             q_pan +='<input type="hidden" class = "dup_id" name="dup_arr[]" > ';                             
+                             q_pan +='<input type="checkbox" class = "dup_class" > ';
+                             q_pan +='<label for="dup_poss">중복 응답 허용(문제에 설명 추가 필요 : 예) 중복선택가능)</label> '; 
+                             q_pan +='<input type="checkbox" class = "no_answer" > ';
+                             q_pan +='<label for="no_ans">미선택가능</label> ';                                     
+                       q_pan +='</div>';
+               q_pan +='</div>';
+      $('#last_line').before(q_pan);        
+}  
+function add_answer(pidObj){
+      var  anser_pan = '<div class ="pollsel"> ';
+                anser_pan +='<label for="answer_title" ></label> '; 
+                anser_pan +='<input class="answer_title" name="answer_title[]" type="text" required class="required" value="">';
+                anser_pan +='<button class="btn_a_del" type="button">- 답변삭제</button>';
+                anser_pan +='</div>';
+     pidObj.children(".pollsel_extra:first").before(anser_pan);      
+ }
+
+function ReSet_ID(){
+     q_obj = $(".qidlbl");
+     count_question = q_obj.size(); 
+     for(var i=0 ; i < count_question ; i++){
+      var qnode = q_obj.eq(i);
+      qnode.text("질문 "+(i+1)+')');
+     }                 
+     ReSet_q_updown();
+}
+
+function ReSet_Answer(ppidObj){
+     q_obj = ppidObj.children('.pollsel');
+     count_question = q_obj.size(); 
+     for(var i=0 ; i < count_question ; i++){
+        var qnode = q_obj.eq(i);
+        var selnode = qnode.children('label');
+        selnode.eq(0).text('답변 '+(i+1)+')');        
+     }         
+     q_obj.children('.btn_a_up').remove(); 
+     q_obj.children('.btn_a_dn').remove(); 
+
+     if (count_question < 2) return;
+      var upbtn = '<button class="btn_a_up" type="button">위로</button> ';
+      var dnbtn = '<button class="btn_a_dn" type="button">아래로</button>';
+     if (count_question == 2) {
+        q_obj.first().children('.btn_a_del').after(dnbtn);
+        q_obj.last().children('.btn_a_del').after(upbtn);
+     } else {
+           q_obj.eq(0).children('.btn_a_del').after(dnbtn);
+           q_obj.eq(count_question-1).children('.btn_a_del').after(upbtn);
+           for(var i=1 ; i < count_question-1 ; i++){
+              q_obj.eq(i).children('.btn_a_del').after(upbtn+dnbtn);
+           }                         
+     }     
+}     
+
+function ReSet_q_updown(){
+     $(".btn_q_up").remove();
+     $(".btn_q_dn").remove();     
+     q_obj = $(".poll_q_title");
+     count_question = q_obj.size(); 
+     if (count_question < 2) return;
+      var upbtn = '<button class="btn_q_up" type="button">위로</button> ';
+      var dnbtn = '<button class="btn_q_dn" type="button">아래로</button> ';
+     if (count_question == 2) {
+        $(".poll_q_title").first().children('.btn_a_add').after(dnbtn);
+        $(".poll_q_title").last().children('.btn_a_add').after(upbtn);
+     } else {
+           q_obj.eq(0).children('.btn_a_add').after(dnbtn);
+           q_obj.eq(count_question-1).children('.btn_a_add').after(upbtn);
+           for(var i=1 ; i < count_question-1 ; i++){
+              q_obj.eq(i).children('.btn_a_add').after(upbtn+dnbtn);
+           }                         
+     }
+}
+<?php 
+  if ($recreate_flag){
+    if (!isset($fcn)) {
+        $temptable = 'temp';
+    }              
+    include_once('service/recreate_poll.php');
+  }
+?>
+ </script>

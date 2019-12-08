@@ -1,0 +1,557 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+
+$Mb_8 = json_decode($member['mb_8']);
+if ($Mb_8->{'GOJI'} == '1'){
+    $use_flag = true;
+    if(isset($varform)) {
+        include_once('./service/smsForm/smsform.php');
+        exit();
+    }
+    $susin1 = ' selected';
+    $susin2 = '';
+    $susin3 = '';
+    $susin7 = '';
+} else {
+    $use_flag = true;
+    if(isset($varform)) {
+        include_once('./service/smsForm/smsform.php');
+        exit();
+    }
+    $susin1 = '';
+    $susin2 = '';
+    $susin3 = '';
+    $susin7 = ' selected';
+}
+  set_session('ele_conv_s', true);
+  $MaxLimit_len = 60;
+?>
+<style type="text/css">
+.file_up_sloading2 {position: absolute;top: 130px;}
+#tempPollPan{position: absolute; margin-left:250px;width:550px;min-height:250px; background:#fff;border:1px solid #dfdfdf;overflow:hidden;
+  top:80px;display: none;padding:10px;z-index: 9999;}
+</style>
+<div class="subTopTab">
+  <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>개별고지</span></a></li>
+    </ul>
+</div>
+<div class="titleBox">
+    <em>개별고지</em>
+    <div class="resend">
+      <div class="bca">
+          <div class="breadCrumbs scBasic">
+            <p>Home <span class="rt">&gt;</span> 가정통신문 문자 <span class="rt">&gt;</span> 개별고지</p>
+          </div>
+      </div>
+      <div class="graybox">
+          <div id="tempPollPan" ></div>
+          <div class="go1">
+              <label for="smsTitle">내용입력</label><input type="text" class="g1" id="smsTitle"  maxlength="60" onkeyup="byte_check('smsTitle', 'sms_bytes');"> <span id="sms_bytes">0</span> / <?=$MaxLimit_len?> byte
+              <input type="button" value="양식목록"  class="btnW2" onclick="goji_temp_list();">
+          </div>
+            <div class="go2">
+<form id= 'upload_conv_form' name="upload_conv_form" method="post" enctype="multipart/form-data">
+                 <label for="searchName">변환할문서</label>
+                 <input type="file" name="conv_up_file" id="conv_up_file" style="width:580px;" onchange="sel_cFile();">
+                 <span id="upload_button"><input type="button" value="올리기" onclick="upload();" class="btnT1"></span>
+</form>
+            </div>
+            <div class="go3" style="margin-bottom:20px">
+                <label for="file_url_s">주소</label>&nbsp;&nbsp;&nbsp;&nbsp;<span id="file_url_s">변환할 문서를 먼저 선택하십시오.</span>
+            </div>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" class="board_type01">
+<tr>
+    <td class="board_type01_td2">
+        <div id="edufiine_select">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" ma>
+            <tr>
+                <td width="130px">
+                    <div class="inputDiv">
+                           edufine(개인별)양식
+                          <input type="hidden" name="form_r" value="" id="form_r">
+                    </div>
+                </td>
+                <td>
+                      <select name="edusel_year" id="edusel_year">
+                              <option value='2016'>2016년도</option>
+                      </select>
+                      <select name="edu_susin" id="edu_susin">
+                              <option value='1' <?=$susin1?>>학부모</option>
+                              <option value='2' <?=$susin2?>>학생</option>
+                              <option value='3' <?=$susin3?>>학부모+학생</option>
+                              <option value='7' <?=$susin7?>>에듀파인연락처</option>
+                      </select>
+                </td>
+            </tr>
+            </table>
+      </div>
+    </td>
+</tr>
+<tr>
+<td class="board_type01_td">
+    <div id="data_file_up_pan">
+    </div>
+    <div id="data_file_confirm_pan">
+    </div>
+</td>
+</tr>
+<tr>
+<td>
+  <div class="goimg"><img src="<?=G5_IMG_URL?>/gojiimg.jpg" alt="개별고지"></div>
+</td>
+</tr>
+</table>
+<div id="file_up_loading" class="file_up_sloading2">
+<img src="/img/ajax_loader.gif"><p>파일 업로드 및 변환중... 잠시만 기다려주십시오...</p>
+</div>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:40px;background:url(/service/images/line.png) repeat-x top">
+<tr>
+<td align="center" style="padding:30px 0 0 0;">
+  <form name="sms_send_fromDoc" method="get" action="/serv.php" onsubmit="return Send_sms_win();">
+            <input type="hidden" name="m1" value="3">
+            <input type="hidden" name="m2" value="4">
+            <input type="hidden" name="udoc" id="udoc" value="">
+            <input type="hidden" name="udcn" id="udcn" value="">
+            <input type="hidden" name="stitle" id="stitle" value="">
+            <input type="hidden" name="varform" id="varform" value="">
+            <input type="hidden" name="polltype" id="polltype" value="0">
+            <input type="hidden" name="ed_mnid" id="ed_mnid" value="">
+            <div class="sendbtn">
+                 <input type="submit" value="다음"  class="mr20 btnT1">
+            </div>
+   </form>
+</tr>
+</table>
+<div id="VarPan" ></div>
+      </div>
+    </div><!-- .resend -->
+</div><!--// .titleBox -->
+<script type="text/javascript">
+$omin = $('#smsTitle');
+$omin_label = $('#ol_smsTitle');
+$omin_label.addClass('ol_smsTitle');
+$(function() {
+    $omin.focus(function() {
+        $omin_label.css('visibility','hidden');
+    });
+    $omin.blur(function() {
+        $this = $(this);
+        if($this.attr('id') == "smsTitle" && $this.attr('value') == "") $omin_label.css('visibility','visible');
+    });
+});
+
+goji_temp_list = function(para){
+        <?php
+           if ($use_flag == false){
+        ?>
+            alert('본 기능은 학교의 추가요청에 따라 개발되어 현재 시범 운영 중입니다!');
+       <?php } else { ?>
+        $.ajax({
+            url: "<?=G5_URL?>/service/ele_goji_recreate_list.php",
+            cache:false,
+            timeout : 30000,
+            dataType:'html',
+            data:para,
+            type:'get',
+            success: function(data) {
+               if (data == 'not') {
+               } else {
+                  shtml = data;
+                  $('#tempPollPan').html(shtml);
+                  $('#tempPollPan').fadeIn('slow');
+               }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //alert(xhr.status);
+                //alert(thrownError);
+            }
+        });
+        <?php }  ?>
+    };
+get_del_goji = function(para) {
+        <?php
+           if ($use_flag == false){
+        ?>
+            alert('본 기능은 학교의 추가요청에 따라 개발되어 현재 시범 운영 중입니다!');       ㅁ
+       <?php } else { ?>
+        if (!confirm("선택한 양식을 목록에서 삭제 하시겠습니까?")) return;
+        var params = { ek : para };
+        $.ajax({
+            url: "<?=G5_URL?>/service/ele_goji_del_list.php",
+            cache:false,
+            timeout : 30000,
+            dataType:'html',
+            data:params,
+            type:'get',
+            success: function(data) {
+               if (data == 'not') {
+               } else {
+                  goji_temp_list();
+               }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+        <?php }  ?>
+};
+
+function Send_sms_win(){
+    <?php
+       if ($use_flag == false)
+       {
+    ?>
+        alert("요청 학교에 의해 시범 운영 중입니다.");
+        return false;
+    <?php } ?>
+
+    <?php if ($is_guest) {?>
+          alert("로그인 후 사용가능합니다.");
+          document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+          return false;
+    <?php
+    }
+    else
+    {
+    ?>
+
+        document.getElementById('stitle').value = document.getElementById('smsTitle').value;
+        fval = document.getElementById('stitle').value;
+         if (fval == '')
+         {
+         alert('SMS 내용을 입력 하십시오!!!');
+         return false;
+         }
+         fval = document.getElementById('udoc').value;
+       if (fval == ''){
+         alert('첨부문서를 먼저 변환 하십시오!!!');
+         return false;
+        }
+
+         fval = document.getElementById('varform').value;
+        if (fval == '')
+        {
+         alert('데이터 파일을 올려주십시오!');
+         return false;
+        }
+       return true;
+    <?php
+    }
+    ?>
+
+}//Send_sms_win
+
+function checkFileExt(ext){
+  pathpoint = ext.lastIndexOf('.');
+  filepoint = ext.substring(pathpoint+1,ext.length);
+  filetype = filepoint.toLowerCase();
+ /*
+  if (filetype == 'htm'||filetype == 'html'||filetype == 'jpg'||filetype == 'jpeg'|| filetype == 'hwp'|| filetype == 'xls'|| filetype == 'xlsx'|| filetype == 'doc'|| filetype == 'docx'|| filetype == 'pdf')
+  {
+         return true;
+  }
+  else
+  {
+         alert('변환 가능한 문서 형식이 아닙니다!!!');
+         return false;
+  }
+*/
+ if (filetype == 'htm'||filetype == 'html'|| filetype == 'hwp')
+  {
+         return true;
+  }
+  else
+  {
+	   $('#conv_up_file').val('');
+         alert('변환 가능한 문서 형식이 아닙니다!\n문서형식은 htm, html, hwp 입니다');
+         return false;
+  }
+
+}//checkFileExt
+
+function checkExcelExt(ext){
+  pathpoint = ext.lastIndexOf('.');
+  filepoint = ext.substring(pathpoint+1,ext.length);
+  filetype = filepoint.toLowerCase();
+  if (filetype == 'xls'|| filetype == 'xlsx'){
+         return true;
+  }else{
+         alert('익셀문서 형식이 아닙니다!!!');
+         return false;
+  }
+}//checkExcelExt
+
+function sel_cFile(){
+    fval = document.getElementById('conv_up_file').value;
+    if (fval == ''){
+        document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';
+        document.getElementById('upload_button').style.display='none';
+    } else {
+        if (checkFileExt(fval)) {
+            document.getElementById('file_url_s').innerHTML = '선택된 문서를 파일전송[올리기] 하십시오.';
+            document.getElementById('upload_button').style.display='inline';
+        } else {
+          document.getElementById('file_url_s').innerHTML = '변환할 문서를 먼저 선택하십시오.';
+          document.getElementById('upload_button').style.display='none';
+        }
+    }
+    document.getElementById('file_up_loading').style.display='none';
+}//sel_cFile
+
+function sel_gFile(){
+    fval = document.getElementById('goji_up_file').value;
+    if (fval == ''){
+        document.getElementById('goji_help_s').innerHTML = '데이터 엑셀 파일을 선택하십시오!';
+        document.getElementById('goji_button').style.display='none';
+    } else {
+        if (checkExcelExt(fval)) {
+            document.getElementById('goji_help_s').innerHTML = '선택된 문서를 파일전송[올리기] 하십시오.';
+            document.getElementById('goji_button').style.display='inline';
+        } else {
+          document.getElementById('goji_help_s').innerHTML = '데이터 엑셀 파일을 선택하십시오!';
+          document.getElementById('goji_button').style.display='none';
+        }
+    }
+    document.getElementById('file_up_loading').style.display='none';
+}//sel_gFile
+function opennewwindow(){
+      var url = document.getElementById('file_url_s').innerHTML;
+      window.open(url);
+}//opennewwindow
+function opennnewwindow(url){
+      window.open(url);
+}//opennnewwindow
+function preView_varForm(tt,h4p){
+  ep = $('#udoc').attr('value');
+  nn = $('#smsTitle').attr('value');
+  url = "<?php echo G5_URL.'/upload/etc/prv.php?ep="+ep+"&uk=' ?>"+tt+"&hk="+h4p+"&nn="+nn;
+  window.open(url,'preview');
+}//preView_varForm
+
+function upload(w)
+{
+
+<?php
+   if ($use_flag == false){
+?>
+    alert("요청 학교에 의해 시범 운영 중입니다.");
+    return false;
+<?php } ?>
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+<?php } else {?>
+    var f = document.upload_conv_form;
+    if (typeof w == 'undefined')
+    {
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+      f.action = '/service/ele_goji_upload.php';
+    } else {
+        document.getElementById('upload_button').style.display = 'none';
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('file_url_s').innerHTML = '변환중...';
+        f.action = '/service/ele_goji_upload.php';
+    }
+    (function($){
+        if(!document.getElementById("fileupload_fr")){
+            var i = document.createElement('iframe');
+            i.setAttribute('id', 'fileupload_fr');
+            i.setAttribute('name', 'fileupload_fr');
+           // i.setAttribute('width', '1000');
+           // i.setAttribute('height', '500');
+            i.style.display = 'none';//chkd none;
+            document.body.appendChild(i);
+        }
+        f.target = 'fileupload_fr';
+        f.submit();
+    })(jQuery);
+<?php }?>
+}//upload
+
+function dataup(w)
+{
+ // $("#fileupload_fr").remove();
+
+<?php
+   if ($use_flag == false){
+?>
+    alert("요청 학교에 의해 시범 운영 중입니다.");
+    return false;
+<?php } ?>
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+<?php } else {?>
+    var which_form = $('#form_r').attr('value');
+    $('#goji_type').attr('value',which_form);
+    if (which_form == 'E') {
+        $('#edu_year').attr('value','');
+        $('#edu_kind').attr('value','');
+    } else if (which_form == 'D') {
+        var which_year = $('#edusel_year').val();
+        var which_susin = $('#edu_susin').val();
+        $('#edu_year').attr('value',which_year);
+        $('#edu_kind').attr('value',which_susin);
+    } else {
+        alert("변수 항목이 없는 파일 입니다.");
+        return false;
+    }
+    var f = document.goji_conv_form;
+    if (typeof w == 'undefined') {
+        document.getElementById('goji_button').style.display = 'none';
+        document.getElementById('file_up_loading').style.display = 'block';
+        document.getElementById('goji_help_s').innerHTML = '저장중...';
+        if (which_form == 'E') {
+              f.action = '/service/ele_goji_dataup.php?confirm=1';
+        } else {
+              f.action = '/service/eduexcel.php?confirm=1';
+        }
+    } else {
+        document.getElementById('file_up_loading').style.display = 'block';
+        if (which_form == 'E') {
+            f.action = '/service/ele_goji_dataup.php?ek='+w;
+        } else {
+            f.action = '/service/eduexcel.php?ek='+w;
+        }
+    }
+
+    (function($){
+        if(!document.getElementById("dataupload_fr")){
+            var i = document.createElement('iframe');
+            i.setAttribute('id', 'dataupload_fr');
+            i.setAttribute('name', 'dataupload_fr');
+			//i.setAttribute('width', '1000');
+            //i.setAttribute('height', '500');
+            i.style.display = 'none';//chkd
+            document.body.appendChild(i);
+        }
+        f.target = 'dataupload_fr';
+        f.submit();
+    })(jQuery);
+<?php }?>
+}//dataup
+
+$(function() {
+    <?php if (!$is_guest) {?>
+    btn_var_preeview_click = function(pp){
+        udoc = $('#udoc').attr('value');
+        uemid = $('#ed_mnid').attr('value');
+        var params = { udoc : udoc,uemid:uemid, page:pp };
+        $.ajax({
+            url: "<?=G5_URL?>/service/var_list_doc.php",
+            cache:false,
+            timeout : 30000,
+            data : params,
+            dataType:'html',
+            type:'get',
+            success: function(data) {
+               if (data == 'not') {
+               } else {
+                  shtml = data;
+                  $('#VarPan').html(shtml);
+                  $('#VarPan').fadeIn('slow');
+               }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //alert(xhr.status);
+                //alert(thrownError);
+            }
+        });
+    };
+    <?php } ?>
+});
+
+function close_var_pan(){
+    $('#VarPan').fadeOut('slow');
+}//close_var_pan
+
+
+function byte_check(wr_message, sms_bytes)
+{
+    var conts = document.getElementById(wr_message);
+    var bytes = document.getElementById(sms_bytes);
+    var i = 0;
+    var cnt = 0;
+    var exceed = 0;
+    var ch = '';
+
+    for (i=0; i<conts.value.length; i++)
+    {
+        ch = conts.value.charAt(i);
+        if (escape(ch).length > 4) {
+            cnt += 2;
+        } else {
+            cnt += 1;
+        }
+    }
+
+    bytes.innerHTML = cnt;
+    if (cnt > <?=$MaxLimit_len?>)
+    {
+        exceed = cnt - <?=$MaxLimit_len?>;
+        alert('메시지 내용은 <?=$MaxLimit_len?>바이트를 넘을수 없습니다.\n\n작성하신 메세지 내용은 '+ exceed +'byte가 초과되었습니다.\n\n초과된 부분은 자동으로 삭제됩니다.');
+        var tcnt = 0;
+        var xcnt = 0;
+        var tmp = conts.value;
+        for (i=0; i<tmp.length; i++)
+        {
+            ch = tmp.charAt(i);
+            if (escape(ch).length > 4) {
+                tcnt += 2;
+            } else {
+                tcnt += 1;
+            }
+
+            if (tcnt > <?=$MaxLimit_len?>) {
+                tmp = tmp.substring(0,i);
+                break;
+            } else {
+                xcnt = tcnt;
+            }
+        }
+        conts.value = tmp;
+        bytes.innerHTML = xcnt;
+        return;
+    }
+}//byte_check
+
+ function get_temp_goji(rn,snm,vcnt){
+          $('#tempPollPan').css("display","none");
+          $('#goji_list_btn').css("display","none");
+
+          document.getElementById("upload_button").style.display = "inline";
+          document.getElementById("file_up_loading").style.display = "none";
+          document.getElementById('upload_button').style.display='none';
+          document.getElementById('upload_conv_form').style.display = 'none';
+          document.getElementById('udoc').value = rn;
+          document.getElementById('udcn').value = snm;
+          document.getElementById("file_url_s").innerHTML = snm;
+          if (vcnt == -1) {
+            document.getElementById('form_r').value = 'D';
+            $('#edufiine_select').css("display","inline-block");
+          } else {
+            document.getElementById('form_r').value = 'E';
+            $('#edufiine_select').css("display","none");
+          }
+
+          document.getElementById("data_file_up_pan").innerHTML =
+          "<form id= 'goji_conv_form' name='goji_conv_form' method='post' enctype='multipart/form-data' class='table_fileup_frm'> "+
+          "<input type='hidden' name='varCount' value = '"+vcnt+"' >"+
+          "<input type='hidden' name='doc_ukey' value = '"+rn+"' >"+
+          "<input type='hidden' name='goji_type' id='goji_type' value = ''>"+
+          "<input type='hidden' name='edu_year' id='edu_year' value = ''>"+
+          "<input type='hidden' name='edu_kind' id='edu_kind' value = ''>"+
+          "<table width='100%' border='0' cellspacing='0' cellpadding='0'> "+
+          "<tr><td>개별자료문서</td></tr> "+
+          "<tr><td><input type='radio' name='edcv_check' id='edcv_Y' value='Y' checked='checked'><label for='edcv_Y'>번호확인</label><input type='radio' name='edcv_check' id='edcv_N' value='N'><label for='edcv_N'>확인안함</label>&nbsp;&nbsp;(개인을 특정할 수 있는 정보가 포함된 경우 수신자만 조회할 수 있도록 번호확인을 체크해주십시오!!)</td></tr> "+
+          "<tr><td><input type='file' name='goji_up_file' id='goji_up_file' style='width:580px;' onchange='sel_gFile();'>"+
+          "<span id='goji_button'>&nbsp;&nbsp;&nbsp;<input type='button' value='올리기' onclick='dataup();' class='btnT1'></span></td></tr>"+
+          "</table></form> "+
+          "<table width='100%' border='0' cellspacing='0' cellpadding='0' style='margin-top:30px;' > "+
+          "<tr><td bgcolor='#1FFFFF' ><div id='goji_help_s'>데이터 엑셀 파일을 선택하십시오!</div></td></tr>"+
+          "</table> ";
+   }//get_temp_goji
+
+</script>

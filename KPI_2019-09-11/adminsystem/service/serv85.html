@@ -1,0 +1,32 @@
+<?php
+// 이 파일은 새로운 파일 생성시 반드시 포함되어야 함
+if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+?>
+<div class="subTopTab">
+	<ul class="item">
+     <li><a href="#" title="페이지 이동" class="active"><span>설문조사결과</span></a></li>
+  </ul>
+</div>
+
+<div class="titlegroup">
+     <em>설문조사결과</em>      
+		 <div class="navgroup">		
+				 <p>Home <span class="rt">&gt;</span> 마이페이지 <span class="rt">&gt;</span> 설문조사결과</p>
+		</div>     
+</div>
+
+<div class="phonegroup">
+<div class="phonegroupin">
+<div class="phonegroupwrap">
+
+ <div id="sub_content">
+<?php
+  $eplm_gubn = '2';
+  $pgMNo1 = 5;
+  include_once('service/ele_poll_list.php');
+?>
+ </div>
+</div>
+</div>
+</div>
+

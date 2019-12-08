@@ -1,0 +1,15 @@
+.subVisual10 {clear:both;width:100%;background:#05383c url(/css/images/subVisual10.png) no-repeat center;height:193px}	
+#convert_doc_radio{border : none;outline: none;}
+#convert_addr_radio{border : none;outline: none;}
+#linkURL {width:500px;height:13px;border:1px solid #737e83;background:#f7f7f7;line-height:1.6em}
+.ol_linkURL {position:absolute;top:5px;left:10px;color:#b4b4b4;font-size:0.95em}
+.file_up_sloading3{position:absolute;top:625px;margin:50px;color:blue;display:none;border:0}
+#current_pr_pan{border:1px solid #565e60;background:#fff;text-align: center;height:50px;overflow: hidden;}
+.prRow{margin : 15px auto;font-size: 1.2em;}
+.prRow a {font-size: 1.4em; text-decoration: underline; color:blue;}
+.helpRow{text-align: center;font-size: 1.6em; margin : 15px auto;}
+.td_alive{color:blue;}
+#fsearch {float:left;}
+#write_new {float:right;margin: 15px}
+#write_new >ul>li>a {color: #fff;background:#ff3061}
+#prlistbtn{float:right;margin-right: 20px;margin-bottom: 10px;}

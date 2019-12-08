@@ -1,0 +1,27 @@
+#contents {
+    position:relative;
+    width:100%;
+    margin:0 auto;
+
+    padding: 30px;
+}
+#gojivar_content{padding:30px}
+.goji_preview_table{font-size:15px; text-align:center;overflow:scroll;width:100%}
+.goji_preview_table thead,.goji_preview_table tbody tr{width: 100%; margin-top: 0px!important;table-layout: fixed;}
+.goji_preview_table th{border: 1px solid #a9a9a9; background: #f7f7f7;padding:7px; text-align:center;}
+.goji_preview_table td{border: 1px solid #e6e6e6; padding:7px}
+.search {
+    padding-left: 30px;
+    font-size: 13px;
+}
+.search ul, .search li{
+    float: left;
+    font-size:15px;
+}
+
+.search_t2{float:left; width:540px; margin-left:30px; margin-top:30px; margin-bottom:30px; border-top:1px solid #3d4144; border-collapse:collapse;    table-layout: fixed;
+    word-break: break-word;}
+.search_t2 th {height:40px; background:#f7f7f7; text-align:center; border-bottom:1px solid #e6e6e6;}
+.search_t2 td {padding:6px 0; text-align:center; border-bottom:1px solid #e6e6e6;}
+.search_t2 td.t_point {font-weight:bold; text-align:center;}
+/*#contents .m_con .m_left { width:180px;}*/

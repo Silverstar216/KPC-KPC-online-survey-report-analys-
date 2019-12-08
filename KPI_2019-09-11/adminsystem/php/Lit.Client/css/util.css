@@ -1,0 +1,160 @@
+.mt3{margin-top:3px;}
+.mt5{margin-top:5px;}
+.mt10{margin-top:10px;}
+.mt15{margin-top:15px;}
+.mt20{margin-top:20px;}
+.mt25{margin-top:25px;}
+.mt30{margin-top:30px;}
+.mt35{margin-top:35px;}
+.mt40{margin-top:40px;}
+.mt45{margin-top:45px;}
+.mt50{margin-top:50px;}
+.mt100{margin-top:100px;}
+.mt110{margin-top:110px;}
+
+.mb3{margin-bottom:3px;}
+.mb5{margin-bottom:5px;} 
+.mb10{margin-bottom:10px;}
+.mb15{margin-bottom:15px;}
+.mb20{margin-bottom:20px;}
+.mb25{margin-bottom:25px;}
+.mb30{margin-bottom:30px;}
+.mb35{margin-bottom:35px;}
+.mb40{margin-bottom:40px;}
+.mb45{margin-bottom:45px;}
+.mb50{margin-bottom:50px;}
+
+.mr5{margin-right:5px;}
+.mr10{margin-right:10px;}
+.mr15{margin-right:15px;}
+.mr20{margin-right:20px;}
+.mr25{margin-right:25px;}
+.mr30{margin-right:30px;}
+.mr35{margin-right:35px;}
+.mr40{margin-right:40px;}
+.mr45{margin-right:45px;}
+.mr50{margin-right:50px;}
+
+.ml5{margin-left:5px;}
+.ml10{margin-left:10px;}
+.ml15{margin-left:15px;}
+.ml20{margin-left:20px;}
+.ml25{margin-left:25px;}
+.ml30{margin-left:30px;}
+.ml35{margin-left:35px;}
+.ml40{margin-left:40px;}
+.ml45{margin-left:45px;}
+.ml50{margin-left:50px;}
+
+.pt3{padding-top:3px;}
+.pt5{padding-top:5px;}
+.pt10{padding-top:10px;}
+.pt15{padding-top:15px;}
+.pt20{padding-top:20px;}
+.pt25{padding-top:25px;}
+.pt30{padding-top:30px;}
+
+.pb3{padding-bottom:3px;}
+.pb5{padding-bottom:5px;}
+.pb10{padding-bottom:10px;}
+.pb15{padding-bottom:15px;}
+.pb20{padding-bottom:20px;}
+.pb25{padding-bottom:25px;}
+.pb30{padding-bottom:30px;}
+
+.pl3{padding-left:3px;}
+.pl5{padding-left:5px;}
+.pl10{padding-left:10px;} 
+.pl15{padding-left:15px;} 
+.pl20{padding-left:20px;} 
+.pl25{padding-left:25px;} 
+.pl30{padding-left:30px;} 
+.pl35{padding-left:35px;} 
+.pl40{padding-left:40px;} 
+
+.pr3{padding-right:3px;}
+.pr5{padding-right:5px;}
+.pr10{padding-right:10px;}
+.pr15{padding-right:15px;}
+.pr20{padding-right:20px;}
+.pr25{padding-right:25px;}
+.pr30{padding-right:30px;}
+.pr35{padding-right:35px;}
+.pr40{padding-right:40px;}
+	
+.bb0{border-bottom:0px;}
+.bb1{border-bottom:1px solid #cccccc;}
+
+.hand{cursor: pointer;}
+.bold {font-weight: bold;}
+.clear{clear:both;}
+.tc {text-align: center;}
+.tr {text-align: right;}
+.tl {text-align: left;}
+.left {float: left;}
+.right {float: right;}
+.red {color:red;}
+.blue {color:blue;}
+.green {color:green;}
+img {border: 0;}
+input {vertical-align: middle;color: #777777;}
+select {vertical-align: middle;}
+
+.btn{
+	background-color: #ffffff;
+	border: 2px solid #d2e5c7;
+	color: #3e3e3e;
+	text-align: center;
+	padding:0 5px 3px 5px;
+	cursor:pointer;
+	font-family: "Malgun Gothic", "Dotum", "Tahoma","Helvetica", "Arial", "sans-serif";
+	
+	-moz-border-radius: 8px; /* FF1+ */
+    -webkit-border-radius: 8px; /* Saf3+, Chrome */
+    border-radius: 8px; /* Opera 10.5, IE 9 */
+	
+	*behavior: url(/Php/Lit.Client/css/ie-css3.htc); /* This lets IE know to call the script on all elements which get the 'box' class */
+	_behavior: url(/Php/Lit.Client/css/ie-css3.htc); /* This lets IE know to call the script on all elements which get the 'box' class */
+	
+	
+	/* -moz-box-shadow: 10px 10px 20px #000; /* Firefox */
+  	/* -webkit-box-shadow: 10px 10px 20px #000; /* Safari and Chrome */
+  	/* box-shadow: 10px 10px 20px #000; /* Opera 10.5+, future browsers and IE6+ using IE-CSS3 */
+}
+.logInbtn{
+	width:55px;
+	height:60px;
+	background-color: #ffffff;
+	border: 2px solid #cccccc;
+	color: #3e3e3e;
+	text-align: center;
+	padding: 5px;
+	cursor:pointer;
+	
+	-moz-border-radius: 10px; /* FF1+ */
+    -webkit-border-radius: 10px; /* Saf3+, Chrome */
+    border-radius: 10px; /* Opera 10.5, IE 9 */
+	behavior: url(/Php/Lit.Client/css/ie-css3.htc); /* This lets IE know to call the script on all elements which get the 'box' class */
+}
+
+.selectBox{
+	padding:1px 0 1px 0;
+}
+
+.inputText{
+	border:1px solid #ccc;
+	height:19px;
+	padding:2px 0 0 2px;
+}
+
+
+.Sbtn{
+	border:1px solid #a1a1a1;
+	background-color:#f5f5f5;
+	height:20px;
+	line-height:17px;
+	padding-left:3px;
+	padding-right:3px;
+	color:#545756;
+	font-size:11px;
+}

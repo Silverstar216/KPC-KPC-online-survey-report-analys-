@@ -1,0 +1,1423 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns="http://www.w3.org/1999/xhtml">
+  <xsl:import href="htc.str" />
+  <xsl:output method="xml" encoding="utf-8" indent="no"
+      doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
+      doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"
+      />
+
+  <xsl:param name="embed-styles-css" select="1" />
+
+  <xsl:template match="/">
+    <xsl:apply-templates select="HTHWP" mode="html" />
+  </xsl:template>
+
+  <xsl:template match="HTHWP" mode="html">
+    <xsl:element name="html">
+      <xsl:element name="head">
+        <xsl:element name="meta">
+          <xsl:attribute name="http-equiv">content-type</xsl:attribute>
+          <xsl:attribute name="content">text/html; charset=utf-8</xsl:attribute>
+        </xsl:element>
+        <xsl:apply-templates select="HTHWPIF" mode="head" />
+		<!-- 추가한 내용 시작 -->
+		<xsl:element name="meta">
+		  <xsl:attribute name="name">generator</xsl:attribute>
+		  <xsl:attribute name="content">htOffice 1.0.0.1 (Linux)</xsl:attribute>
+		</xsl:element>
+		<xsl:apply-templates select="HTHWPIF" mode="date" />
+		<!-- 추가한 내용 끝 -->
+		<!--
+        <xsl:apply-templates select="HTDI" mode="head" /> -->
+        <xsl:element name="style">
+          <xsl:attribute name="type">text/css</xsl:attribute>
+          <xsl:text>&#10;</xsl:text>
+		  <xsl:call-template name="PageBackground" />
+		  <xsl:apply-templates select="//HTDI/HTIMP" mode="css-rule" />
+          <xsl:apply-templates select="HTBDTX/HTSCTD" mode="css-rule" />
+          <xsl:apply-templates select="//Header" mode="css-rule" />
+          <xsl:apply-templates select="//Footer" mode="css-rule" />
+        </xsl:element>
+      </xsl:element>
+      <xsl:apply-templates select="HTBDTX" mode="body" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="HTHWPIF" mode="head">
+    <xsl:element name="title">
+      <xsl:value-of select="Property[@name='PIDSI_TITLE']/@value" />
+    </xsl:element>
+  </xsl:template>
+
+  <!-- 추가한 내용 시작 -->
+  <xsl:template match="HTHWPIF" mode="date">
+	<xsl:element name="meta">
+      <xsl:attribute name="name">created</xsl:attribute>
+	  <xsl:attribute name="content">
+	    <xsl:value-of select="Property[@name='PIDSI_CREATE_DTM']/@value" />
+	  </xsl:attribute>
+	</xsl:element>
+	<xsl:element name="meta">
+      <xsl:attribute name="name">changed</xsl:attribute>
+	  <xsl:attribute name="content">
+	    <xsl:value-of select="Property[@name='PIDSI_LASTSAVE_DTM']/@value" />
+	  </xsl:attribute>
+	</xsl:element>
+  </xsl:template>
+  <!-- 추가한 내용 끝 -->
+	
+  <xsl:template match="HTDI" mode="head">
+    <xsl:choose>
+      <xsl:when test="$embed-styles-css = '1'">
+        <xsl:apply-templates select="HTIMP" mode="style" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:element name="link">
+          <xsl:attribute name="rel">stylesheet</xsl:attribute>
+          <xsl:attribute name="href">styles.css</xsl:attribute>
+          <xsl:attribute name="type">text/css</xsl:attribute>
+        </xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="HTIMP" mode="style">
+    <xsl:element name="style">
+      <xsl:attribute name="type">text/css</xsl:attribute>
+      <xsl:apply-templates select="." mode="css-rule" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="HTBDTX" mode="body">
+    <xsl:element name="body">
+      <xsl:apply-templates select="HTSCTD" mode="div" />
+    </xsl:element>
+  </xsl:template>
+  
+  <!-- 새로 추가한 내용 시작 -->
+  <xsl:template match="HTSCTD" mode="para_mine">
+	<xsl:element name="p">
+	  <xsl:attribute name="style">
+		<xsl:text>margin-bottom: 0in; line-height: 100%</xsl:text>
+	  </xsl:attribute>
+	  <xsl:element name="font">
+	    <xsl:attribute name="face">
+		</xsl:attribute>
+	  </xsl:element>
+	</xsl:element>
+  </xsl:template>
+  <!-- 새로 추가한 내용 끝 -->
+
+  <xsl:template match="HTSCTD" mode="div">
+    <xsl:element name="div">
+      <xsl:attribute name="class">
+        <xsl:text>htOffice ST-</xsl:text>
+        <xsl:value-of select="@section-id" />
+      </xsl:attribute>
+      <xsl:element name="div">
+        <xsl:attribute name="class">LOFooter</xsl:attribute>
+		<xsl:attribute name="style">
+			<xsl:apply-templates select="PageDef" mode="page-css" />
+		</xsl:attribute>
+        <xsl:apply-templates select="//Header" mode="div" />
+        <xsl:apply-templates />
+        <xsl:apply-templates select="//Footer" mode="div" />
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Header" mode="div">
+    <xsl:element name="div">
+      <xsl:attribute name="class">HdParam</xsl:attribute>
+      <xsl:apply-templates select="HeaderParagraphList/Paragraph" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Footer" mode="div">
+    <xsl:element name="div">
+      <xsl:attribute name="class">FtParam</xsl:attribute>
+      <xsl:apply-templates select="FooterParagraphList/Paragraph" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Paragraph">
+    <xsl:element name="p">
+      <xsl:variable name="styleid" select="@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+      <xsl:variable name="parashape_pos" select="number(@parashape-id) + 1" />
+      <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+	  <xsl:variable name="paraWidth" select="LineSeg/@width"/>
+
+	  <xsl:variable name="textdirection" select="../@textdirection" />
+	  <xsl:variable name="height" select="../../@height"/>
+	  <xsl:variable name="width" select="../../@width"/>
+	  <xsl:variable name="sFlag" select="../../../@scalerotations-count"/>
+	  <xsl:variable name="sheight" select="../../../ShapeComponent[1]/@height"/>
+	  <xsl:variable name="paraYpos" select="LineSeg/@y"/>
+	  <xsl:variable name="paraCount" select="../@paragraphs"/>
+		  
+	  <xsl:attribute name="class">
+		<xsl:value-of select="$stylencname" />
+		<xsl:choose>
+		  <xsl:when test="$style/@parashape-id = @parashape-id">
+			<xsl:apply-templates select="$style" mode="add-class-bullet" />
+		  </xsl:when>
+		  <xsl:otherwise>
+		     <xsl:apply-templates select="." mode="add-class-bullet" />
+		  </xsl:otherwise>
+	    </xsl:choose>
+      </xsl:attribute>
+
+      <xsl:attribute name="style">
+         <xsl:apply-templates select="$parashape" mode="text-align" />
+
+		 <xsl:if test="name(../.) = 'TextboxParagraphList'">
+			<xsl:text>;width:</xsl:text>
+			<xsl:value-of select="$paraWidth div 100"/>
+			<xsl:text>pt;</xsl:text>
+		 </xsl:if>
+
+		 <xsl:if test="$textdirection = 0 and $width > 0 and $height > 0 and $sFlag > 0">
+			<xsl:if test="name(../.) = 'TextboxParagraphList'">
+				<xsl:text>;position:absolute</xsl:text>
+				<xsl:text>;margin-top:-</xsl:text>
+				<xsl:value-of select="($sheight + $height) div 200 - $paraYpos div 100" />
+				<xsl:text>pt;</xsl:text>
+			</xsl:if>
+						
+		 </xsl:if>
+	  </xsl:attribute>
+
+	  <xsl:if test="$style/@parashape-id != @parashape-id">
+		<xsl:attribute name="style">
+			<xsl:apply-templates select="$parashape" mode="css-declaration" />
+
+			<xsl:if test="name(../.) = 'TextboxParagraphList'">
+				<xsl:text>;width:</xsl:text>
+				<xsl:value-of select="$paraWidth div 100"/>
+				<xsl:text>pt;</xsl:text>
+			</xsl:if>
+			<xsl:if test="$textdirection = 0 and $width > 0 and $height > 0 and $sFlag > 0">
+			  <xsl:if test="name(../.) = 'TextboxParagraphList'">
+				<xsl:text>position:absolute</xsl:text>
+				<xsl:text>;margin-top:-</xsl:text>
+				<xsl:value-of select="($sheight + $height) div 200 - $paraYpos div 100" />
+				<xsl:text>pt</xsl:text>
+			  </xsl:if>
+			</xsl:if>
+		</xsl:attribute>
+	  </xsl:if>
+	  
+      <xsl:for-each select="LineSeg">
+        <xsl:apply-templates select="FieldBookmark|TableControl[@inline='0']|FieldClickHere|FieldFormula|FieldHyperLink|Text|ControlChar|AutoNumbering|TableControl[@inline='1']|GShapeObjectControl[@inline='1']" />
+      </xsl:for-each>
+    </xsl:element>
+    <!--
+	<xsl:apply-templates select="LineSeg/TableControl[@inline='0']" />-->
+    <xsl:apply-templates select="LineSeg/GShapeObjectControl[@inline='0']" />
+  </xsl:template>
+
+  <xsl:template match="ControlChar"><xsl:value-of select="@char"/></xsl:template>
+  
+  <xsl:template match="Paragraph/LineSeg/FieldClickHere">
+    <xsl:element name="span">
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+	  <xsl:variable name="charshapeid" select="Text/@charshape-id" />
+	  <xsl:variable name="charshape" select="//CharShape[number($charshapeid)+1]" />
+	  <xsl:variable name="parashapeid" select="../../@parashape-id"/>
+	  
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$charshape" mode="css-declaration" />
+	  </xsl:attribute>
+	  <xsl:element name="span">
+		<xsl:attribute name="style">
+		  <xsl:apply-templates select="$charshape" mode="fontSize" >
+			<xsl:with-param name="lang" select="@lang"/>
+		  </xsl:apply-templates>
+		</xsl:attribute>
+		<xsl:apply-templates select="Text/text()" />
+	  </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Paragraph/LineSeg/FieldBookmark">
+    <xsl:element name="span">
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+	  <xsl:variable name="charshapeid" select="Text/@charshape-id" />
+	  <xsl:variable name="charshape" select="//CharShape[number($charshapeid)+1]" />
+	  <xsl:variable name="parashapeid" select="../../@parashape-id"/>
+	  
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$charshape" mode="css-declaration" />
+	  </xsl:attribute>
+	  <xsl:element name="span">
+		<xsl:attribute name="style">
+		  <xsl:apply-templates select="$charshape" mode="fontSize" >
+			<xsl:with-param name="lang" select="@lang"/>
+		  </xsl:apply-templates>
+		</xsl:attribute>
+		<xsl:apply-templates select="Text/text()" />
+	  </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Paragraph/LineSeg/FieldHyperLink">
+    <xsl:element name="a">
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+	  <xsl:variable name="charshapeid" select="Text/@charshape-id" />
+	  <xsl:variable name="charshape" select="//CharShape[number($charshapeid)+1]" />
+	  <xsl:variable name="parashapeid" select="../../@parashape-id"/>
+	  
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$charshape" mode="css-declaration" />
+	  </xsl:attribute>
+	  <xsl:attribute name="href">
+		<xsl:value-of select="@command"/>
+	  </xsl:attribute>
+	  <xsl:value-of select="Text/text()"/>
+	  <xsl:value-of select="FieldBookmark/Text/text()"/>
+	  <!--
+	  <xsl:element name="span">
+		<xsl:attribute name="style">
+		  <xsl:apply-templates select="$charshape" mode="fontSize" >
+			<xsl:with-param name="lang" select="@lang"/>
+		  </xsl:apply-templates>
+		</xsl:attribute>
+		<xsl:value-of select="text()"/>
+	  </xsl:element>-->
+    </xsl:element>
+  </xsl:template>
+  
+  <xsl:template match="Paragraph/LineSeg/FieldFormula">
+    <xsl:element name="span">
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+	  <xsl:variable name="charshapeid" select="Text/@charshape-id" />
+	  <xsl:variable name="charshape" select="//CharShape[number($charshapeid)+1]" />
+	  <xsl:variable name="parashapeid" select="../../@parashape-id"/>
+	  
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$charshape" mode="css-declaration" />
+	  </xsl:attribute>
+	  <xsl:element name="span">
+		<xsl:attribute name="style">
+		  <xsl:apply-templates select="$charshape" mode="fontSize" >
+			<xsl:with-param name="lang" select="@lang"/>
+		  </xsl:apply-templates>
+		</xsl:attribute>
+		<xsl:apply-templates select="Text/text()" />
+	  </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Paragraph/LineSeg/Text">
+    <xsl:element name="span">	
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+	  <xsl:variable name="charshapeid" select="@charshape-id" />
+	  <xsl:variable name="charshape" select="//CharShape[number($charshapeid)+1]" />
+	  <xsl:variable name="parashapeid" select="../../@parashape-id"/>
+	  
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$charshape" mode="css-declaration" />
+	  </xsl:attribute>
+	  <xsl:element name="span">
+		<xsl:attribute name="style">
+		  <xsl:apply-templates select="$charshape" mode="fontSize" >
+			<xsl:with-param name="lang" select="@lang"/>
+		  </xsl:apply-templates>
+		</xsl:attribute>
+		<xsl:apply-templates select="text()" />
+	  </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="text()">
+	<xsl:call-template name="prewrap">
+		<xsl:with-param name="text" select="."/>
+	</xsl:call-template>
+    
+  </xsl:template>
+
+  <xsl:template name="replace-spaces">
+	  <xsl:param name="text" />
+	  <xsl:choose>
+		<xsl:when test="contains($text, '  ')">
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-before($text, '  ')"/>
+		  </xsl:call-template>
+		  <xsl:text>&#xA0;&#xA0;</xsl:text>
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-before($text, '  ')" />
+		  </xsl:call-template>
+		</xsl:when>
+		<xsl:when test="contains($text, '&#x9;')">
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-before($text, '&#x9;')"/>
+		  </xsl:call-template>
+		  <xsl:text>&#xA0;&#xA0;&#xA0;&#xA0;</xsl:text>
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-before($text, '&#x9;')" />
+		  </xsl:call-template>
+		</xsl:when>
+		<xsl:when test="contains($text, '&#xA;')">
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-before($text, '&#xA;')" />
+		  </xsl:call-template>
+		  <br />
+		  <xsl:call-template name="replace-spaces">
+			<xsl:with-param name="text" select="substring-after($text, '&#xA;')" />
+		  </xsl:call-template>
+		</xsl:when>
+		<xsl:otherwise>
+		  <xsl:value-of select="$text" />
+		</xsl:otherwise>
+	  </xsl:choose>
+	</xsl:template>
+	
+	<xsl:template name="prewrap">
+     <xsl:param name="text" select="."/>
+     <xsl:variable name="spaceIndex" select="string-length(substring-before($text, '  '))"/>
+	 <xsl:variable name="spaceIndex3" select="string-length(substring-before($text, '   '))"/>
+	 <xsl:variable name="spaceIndex4" select="string-length(substring-before($text, '    '))"/>
+	 <xsl:variable name="spaceIndex5" select="string-length(substring-before($text, '     '))"/>
+	 <xsl:variable name="spaceIndex6" select="string-length(substring-before($text, '      '))"/>
+	 <xsl:variable name="spaceIndex7" select="string-length(substring-before($text, '       '))"/>
+	 <xsl:variable name="spaceIndex8" select="string-length(substring-before($text, '        '))"/>
+	 <xsl:variable name="spaceIndex9" select="string-length(substring-before($text, '         '))"/>
+	 <xsl:variable name="spaceIndex10" select="string-length(substring-before($text, '          '))"/>
+	 <xsl:variable name="spaceIndex11" select="string-length(substring-before($text, '           '))"/>
+	 <xsl:variable name="spaceIndex12" select="string-length(substring-before($text, '            '))"/>
+	 <xsl:variable name="spaceIndex13" select="string-length(substring-before($text, '             '))"/>
+	 <xsl:variable name="spaceIndex14" select="string-length(substring-before($text, '              '))"/>
+	 <xsl:variable name="spaceIndex15" select="string-length(substring-before($text, '               '))"/>
+	 <xsl:variable name="spaceIndex16" select="string-length(substring-before($text, '                '))"/>
+	 <xsl:variable name="spaceIndex17" select="string-length(substring-before($text, '                 '))"/>
+	 <xsl:variable name="spaceIndex18" select="string-length(substring-before($text, '                  '))"/>
+	 <xsl:variable name="spaceIndex19" select="string-length(substring-before($text, '                   '))"/>
+	 <xsl:variable name="spaceIndex20" select="string-length(substring-before($text, '                    '))"/>
+
+     <xsl:variable name="tabIndex" select="string-length(substring-before($text, '&#x09;'))"/>
+     <xsl:variable name="lineFeedIndex" select="string-length(substring-before($text, '&#xA;'))"/>
+     <xsl:choose>
+       <xsl:when test="$spaceIndex3 = 0 and $spaceIndex4 = 0 and $spaceIndex5 = 0 and $spaceIndex6 = 0 and $spaceIndex7 = 0 and $spaceIndex8 = 0 and $spaceIndex9 = 0 and $spaceIndex10 = 0 and $spaceIndex11 = 0 and $spaceIndex12 = 0 and $spaceIndex13 = 0 and $spaceIndex14 = 0 and $spaceIndex15 = 0 and $spaceIndex16 = 0 and $spaceIndex17 = 0 and $spaceIndex18 = 0 and $spaceIndex19 = 0 and $spaceIndex20 = 0 and $spaceIndex = 0 and $tabIndex = 0 and $lineFeedIndex = 0"><!-- no special characters left -->
+           <xsl:value-of select="$text"/>
+       </xsl:when>
+       <xsl:when test="$spaceIndex > $tabIndex and $lineFeedIndex > $tabIndex"><!-- tab -->
+         <xsl:value-of select="substring-before($text, '&#x09;')"/>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'&#x09;')"/>
+         </xsl:call-template>
+       </xsl:when>
+       <xsl:when test="$spaceIndex > $lineFeedIndex and $tabIndex > $lineFeedIndex"><!-- line feed -->
+         <xsl:value-of select="substring-before($text, '&#xA;')"/>
+         <br/>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'&#xA;')"/>
+         </xsl:call-template>
+       </xsl:when>
+       <xsl:when test="$lineFeedIndex > $spaceIndex and $tabIndex > $spaceIndex"><!-- two spaces -->
+         <xsl:value-of select="substring-before($text, '  ')"/>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'  ')"/>
+         </xsl:call-template>
+       </xsl:when>
+	   <!---->
+
+	   <xsl:when test="$spaceIndex20 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'                    ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'                    ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex19 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'                   ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'                   ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+
+	   <xsl:when test="$spaceIndex18 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'                  ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'                  ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex17 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'                 ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'                 ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+       <xsl:when test="$spaceIndex16 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'                ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'                ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex15 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'               ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '               ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'               ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex14 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'              ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '              ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'              ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex13 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'             ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '             ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'             ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex12 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'            ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '            ')"/>-->
+
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'            ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex11 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'           ')"/>
+         </xsl:call-template>
+		 
+		 <!--<xsl:value-of select="substring-before($text, '           ')"/>-->
+         
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'           ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex10 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'          ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '          ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'          ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex9 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'         ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '         ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'         ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex8 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'        ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '        ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'        ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex7 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'       ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '       ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'       ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex6 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'      ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '      ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'      ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex5 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'     ')"/>
+         </xsl:call-template>
+
+		 <!--<xsl:value-of select="substring-before($text, '     ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'     ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex4 > 0">
+	      <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'    ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '    ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'    ')"/>
+         </xsl:call-template>
+	   </xsl:when> 
+
+	   <xsl:when test="$spaceIndex3 > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'   ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '   ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+		 <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'   ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+	   <xsl:when test="$spaceIndex > 0">
+	     <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-before($text,'  ')"/>
+         </xsl:call-template>
+		 <!--<xsl:value-of select="substring-before($text, '  ')"/>-->
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:text disable-output-escaping="yes">&amp;nbsp;</xsl:text>
+         <xsl:call-template name="prewrap">
+           <xsl:with-param name="text" select="substring-after($text,'  ')"/>
+         </xsl:call-template>
+	   </xsl:when>
+
+       <xsl:otherwise><!-- should never happen -->
+           <xsl:value-of select="$text"/>
+       </xsl:otherwise>
+     </xsl:choose>
+    </xsl:template>
+
+<!-- 웃부분의 원본 
+  <xsl:template match="Paragraph/LineSeg/Text">
+    <xsl:element name="span">
+      <xsl:variable name="styleid" select="../../@style-id"/>
+      <xsl:variable name="style" select="//Style[number($styleid)+1]" />
+      <xsl:variable name="stylename" select="$style/@name" />
+      <xsl:variable name="stylencname" select="translate($stylename, ' ', '-')" />
+      <xsl:attribute name="class">
+        <xsl:text>lang-</xsl:text>
+        <xsl:value-of select="@lang" />
+        <xsl:choose>
+          <xsl:when test="$style/@charshape-id = @charshape-id"></xsl:when>
+          <xsl:otherwise>
+              <xsl:text> </xsl:text>
+              <xsl:text>charshape-</xsl:text>
+              <xsl:value-of select="@charshape-id" />
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:value-of select="text()"/>
+    </xsl:element>
+  </xsl:template> -->
+
+  <xsl:template match="AutoNumbering">
+    <xsl:element name="span">
+      <xsl:attribute name="class">
+        <xsl:text>hkANRule</xsl:text>
+        <xsl:text> </xsl:text>
+        <xsl:text>hkANRule-</xsl:text>
+        <xsl:value-of select="@kind" />
+      </xsl:attribute>
+      <xsl:value-of select="@prefix" />
+      <xsl:value-of select="@number" />
+      <xsl:value-of select="@suffix" />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="TableControl[@inline='0']">
+    <xsl:variable name="borderfillid" select="TableBody/@borderfill-id" />
+	<xsl:variable name="borderfill" select="//BorderFill[number($borderfillid)]" />
+    <xsl:element name="table">
+      <xsl:attribute name="cellspacing"><xsl:value-of select="TableBody/@cellspacing"/></xsl:attribute>
+      <xsl:attribute name="style">
+        <xsl:apply-templates select="." mode="css-width" />
+        <xsl:apply-templates select="." mode="extendedcontrol-hpos" />
+        <xsl:apply-templates select="." mode="table-border" />
+		<!--
+		<xsl:apply-templates select="$borderfill" mode="css-declaration" /> -->
+      </xsl:attribute>
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="TableControl" mode="table-border">
+    <xsl:call-template name="css-declaration">
+      <xsl:with-param name="property">border-collapse</xsl:with-param>
+      <xsl:with-param name="value">collapse</xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="TableControl[@inline='1']">
+    <xsl:variable name="borderfillid" select="TableBody/@borderfill-id" />
+	<xsl:variable name="borderfill" select="//BorderFill[number($borderfillid)]" />
+    <xsl:element name="span">
+      <xsl:attribute name="style">
+        <xsl:apply-templates select="." mode="css-display" />
+      </xsl:attribute>
+      <xsl:element name="table">
+        <xsl:attribute name="cellspacing"><xsl:value-of select="TableBody/@cellspacing"/></xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:apply-templates select="." mode="css-width" />
+          <xsl:apply-templates select="." mode="table-border" />
+		  <!--
+		  <xsl:apply-templates select="$borderfill" mode="css-declaration" />-->
+        </xsl:attribute>
+        <xsl:apply-templates />
+      </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="TableCell">
+    <xsl:variable name="borderfillid" select="@borderfill-id" />
+	<xsl:variable name="borderfill" select="//BorderFill[number($borderfillid)]" />
+    <xsl:element name="td">
+      <xsl:attribute name="style">
+	    <xsl:apply-templates select="$borderfill" mode="css-declaration" />
+        <xsl:call-template name="css-declaration">
+          <xsl:with-param name="property">width</xsl:with-param>
+          <xsl:with-param name="value">
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@width" />
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="css-declaration">
+          <xsl:with-param name="property">height</xsl:with-param>
+          <xsl:with-param name="value">
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@height" />
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="css-declaration">
+          <xsl:with-param name="property">padding</xsl:with-param>
+          <xsl:with-param name="value">
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@padding-top" />
+            </xsl:call-template>
+            <xsl:text> </xsl:text>
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@padding-right" />
+            </xsl:call-template>
+            <xsl:text> </xsl:text>
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@padding-bottom" />
+            </xsl:call-template>
+            <xsl:text> </xsl:text>
+            <xsl:call-template name="hwpunit-to-mm">
+              <xsl:with-param name="hwpunit" select="@padding-left" />
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:attribute>
+      <xsl:attribute name="rowspan"><xsl:value-of select="@rowspan"/></xsl:attribute>
+      <xsl:attribute name="colspan"><xsl:value-of select="@colspan"/></xsl:attribute>
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="TableCaption">
+    <xsl:element name="caption">
+      <xsl:attribute name="class">hkTCRule</xsl:attribute>
+      <xsl:attribute name="style">
+        <xsl:choose>
+          <xsl:when test="@position = 'top'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">caption-side</xsl:with-param>
+              <xsl:with-param name="value" select="@position" />
+            </xsl:call-template>
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-bottom</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@separation" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">width</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@width" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="@position = 'bottom'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">caption-side</xsl:with-param>
+              <xsl:with-param name="value" select="@position" />
+            </xsl:call-template>
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-top</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@separation" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">width</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@width" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>/* </xsl:text>
+            <xsl:text>not supported @position: </xsl:text>
+            <xsl:value-of select="@position" />
+            <xsl:text> */&#10;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="TableRow">
+    <xsl:element name="tr">
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="GShapeObjectControl[@inline='1']">
+    <xsl:element name="span">
+      <xsl:attribute name="style">
+        <xsl:apply-templates select="." mode="css-width" />
+		
+		<!--
+        <xsl:apply-templates select="." mode="css-display" />-->
+      </xsl:attribute>
+	  <!--
+	  <xsl:text>ㅁ</xsl:text>-->
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="GShapeObjectControl[@inline='0']">
+    <xsl:element name="div">
+      <xsl:attribute name="style">
+        <xsl:apply-templates select="." mode="css-width12" />
+		<xsl:text>;</xsl:text>
+        <xsl:apply-templates select="." mode="extendedcontrol-hpos" />
+      </xsl:attribute>
+	  <!--
+	  <xsl:text>ㅁ</xsl:text>-->
+      <xsl:apply-templates />
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="ShapePicture">
+    <xsl:variable name="bindataid" select="PictureInfo/@bindata-id"/>
+    <xsl:variable name="bindata" select="/HTHWP/HTDI/HTIMP/BinData[number($bindataid)]"/>
+	<xsl:variable name="rotate" select="../@angle"/>
+    <xsl:element name="img">
+      <xsl:apply-templates select="$bindata" mode="img-src"/>
+      <xsl:attribute name="style">
+		<xsl:apply-templates select=".." mode="css-width" />
+		<xsl:text> </xsl:text>
+		<xsl:apply-templates select=".." mode="css-height" />
+		<xsl:text> </xsl:text>
+		<xsl:text>transform:</xsl:text>
+		<xsl:text>rotate(</xsl:text>
+		<xsl:value-of select="360 - $rotate"/>
+		<xsl:text>deg)</xsl:text>
+      </xsl:attribute>
+    </xsl:element>
+  </xsl:template>
+
+<!--
+  <xsl:template match="FillColorPattern">
+    <xsl:variable name="backcolor" select="@background-color"/>
+    <xsl:variable name="width" select="../@width"/>
+	<xsl:variable name="height" select="../@height"/>
+    <xsl:element name="div">
+	  <xsl:attribute name="id">
+		<xsl:text>rectangle</xsl:text>
+	  </xsl:attribute>
+      <xsl:attribute name="style">
+		<xsl:text>width:</xsl:text>
+		<xsl:value-of select="$width div 100"/>
+		<xsl:text>pt;</xsl:text>
+		<xsl:text>height:</xsl:text>
+		<xsl:value-of select="$height div 100"/>
+		<xsl:text>pt;</xsl:text>
+		<xsl:text>background-color:</xsl:text>
+		<xsl:value-of select="$backcolor"/>
+      </xsl:attribute>
+    </xsl:element>
+  </xsl:template>-->
+
+  <xsl:template match="BinDataEmbedding" mode="img-src">
+    <xsl:choose>
+      <xsl:when test="@inline = 'true'">
+        <xsl:apply-templates select="." mode="img-src-datauri" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="." mode="img-src-external" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="BinDataEmbedding" mode="img-src-external">
+    <xsl:variable name="binpath" select="'images/'"/>
+    <xsl:attribute name="src">
+      <xsl:value-of select="$binpath"/>
+      <xsl:value-of select="@storage-id"/>
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="@ext"/>
+    </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="BinDataEmbedding" mode="img-src-datauri">
+    <xsl:attribute name="src">
+      <xsl:text>data:;base64,</xsl:text>
+      <xsl:value-of select="text()" />
+    </xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="ShapeComponent" mode="css-width">
+    <xsl:call-template name="css-declaration">
+      <xsl:with-param name="property">width</xsl:with-param>
+      <xsl:with-param name="value">
+        <xsl:call-template name="hwpunit-to-mm">
+          <xsl:with-param name="hwpunit" select="@width" />
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="ShapeComponent" mode="css-height">
+    <xsl:call-template name="css-declaration">
+      <xsl:with-param name="property">height</xsl:with-param>
+      <xsl:with-param name="value">
+        <xsl:call-template name="hwpunit-to-mm">
+          <xsl:with-param name="hwpunit" select="@height" />
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="TableControl[@inline='1']|GShapeObjectControl[@inline='1']" mode="css-display">
+    <xsl:call-template name="css-declaration">
+      <xsl:with-param name="property">display</xsl:with-param>
+      <xsl:with-param name="value">inline-block</xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="TableControl|GShapeObjectControl" mode="css-width">
+    <xsl:call-template name="css-declaration">
+      <xsl:with-param name="property">width</xsl:with-param>
+      <xsl:with-param name="value">
+        <xsl:call-template name="hwpunit-to-mm">
+          <xsl:with-param name="hwpunit" select="@width" />
+        </xsl:call-template>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template match="TableControl|GShapeObjectControl" mode="extendedcontrol-hpos">
+    <xsl:variable name="paragraph" select="../.." />
+    <xsl:variable name="parashape_pos" select="number($paragraph/@parashape-id) + 1" />
+    <xsl:variable name="parashape" select="//ParaShape[$parashape_pos]" />
+    <xsl:variable name="columnset" select="$paragraph/.." />
+    <xsl:variable name="section" select="$columnset/.." />
+    <xsl:variable name="pagedef" select="$section/PageDef" />
+    <xsl:choose>
+      <xsl:when test="@hrelto = 'paragraph'">
+        <xsl:choose>
+          <xsl:when test="@halign = 'left'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="$parashape/@doubled-margin-left div 2 + @margin-left + @x" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="@halign = 'right'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+
+                  <xsl:with-param name="hwpunit" select="
+                    $pagedef/@width
+                    - $pagedef/@right-offset - $parashape/@doubled-margin-right div 2
+                    - @x
+                    - @margin-right - @width
+                    - $pagedef/@left-offset
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+
+          <xsl:when test="@halign = 'center'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+
+                  <xsl:with-param name="hwpunit" select="
+                    ($pagedef/@width - $pagedef/@left-offset - $pagedef/@right-offset) div 2
+                    - @width div 2
+                    + @x
+                    + $parashape/@doubled-margin-left div 2
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="@hrelto = 'column'">
+        <xsl:choose>
+
+          <xsl:when test="@halign = 'left'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@margin-left + @x" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+
+          <xsl:when test="@halign = 'right'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+
+                  <xsl:with-param name="hwpunit" select="
+                    $pagedef/@width
+                    - $pagedef/@right-offset
+                    - @x
+                    - @margin-right - @width
+                    - $pagedef/@left-offset
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:when test="@halign = 'center'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="
+                    ($pagedef/@width - $pagedef/@left-offset - $pagedef/@right-offset) div 2
+                    - @width div 2
+                    + @x
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="@hrelto = 'page'">
+        <xsl:choose>
+
+          <xsl:when test="@halign = 'left'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@margin-left + @x" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+
+          <xsl:when test="@halign = 'right'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+
+                  <xsl:with-param name="hwpunit" select="
+                    $pagedef/@width
+                    - $pagedef/@right-offset
+                    - @x
+                    - @margin-right - @width
+                    - $pagedef/@left-offset
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+
+          <xsl:when test="@halign = 'center'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+
+                  <xsl:with-param name="hwpunit" select="
+                    ($pagedef/@width - $pagedef/@left-offset - $pagedef/@right-offset) div 2
+                    - @width div 2
+                    + @x
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="@hrelto = 'paper'">
+        <xsl:choose>
+
+          <xsl:when test="@halign = 'left'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="@margin-left + @x - $pagedef/@left-offset" />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+			<xsl:if test="@y &lt; 10000">
+				<xsl:call-template name="css-declaration">  
+				  <xsl:with-param name="property">top</xsl:with-param>
+				  <xsl:with-param name="value">
+					<xsl:call-template name="hwpunit-to-mm">
+					  <xsl:with-param name="hwpunit" select="@margin-top + @y - $pagedef/@top-offset + 1000" />
+					</xsl:call-template>
+				  </xsl:with-param>
+				</xsl:call-template>
+				<xsl:text>; position:absolute</xsl:text>
+			</xsl:if>
+          </xsl:when>
+
+          <xsl:when test="@halign = 'right'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="
+                    $pagedef/@width
+                    - @x
+                    - @margin-right - @width
+                    - $pagedef/@left-offset
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <!-- 가운데로부터 -->
+          <xsl:when test="@halign = 'center'">
+            <xsl:call-template name="css-declaration">
+              <xsl:with-param name="property">margin-left</xsl:with-param>
+              <xsl:with-param name="value">
+                <xsl:call-template name="hwpunit-to-mm">
+                  <xsl:with-param name="hwpunit" select="
+                    $pagedef/@width div 2
+                    - @width div 2
+                    + @x
+                    - $pagedef/@left-offset
+                    " />
+                </xsl:call-template>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+        </xsl:choose>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+</xsl:stylesheet>

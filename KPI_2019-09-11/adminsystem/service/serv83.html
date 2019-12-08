@@ -1,0 +1,133 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가 
+
+   $page_size = 20;
+   $colspan = 11;
+
+  $g5['title'] = "문서변환내역";
+
+  if ($page < 1) $page = 1;
+
+  if ($st && trim($sv))
+      $sql_search = " and edoc_wdoc like '%$sv%' ";
+  else
+      $sql_search = "";
+
+  $total_res = sql_fetch("select count(*) as cnt from edoc_master where edoc_mbid=  '{$member['mb_id']}' $sql_search");
+  $total_count = $total_res['cnt'];
+
+  $total_page = (int)($total_count/$page_size) + ($total_count%$page_size==0 ? 0 : 1);
+  $page_start = $page_size * ( $page - 1 );
+
+  $vnum = $total_count - (($page-1) * $page_size);
+?>
+<div id="sub_content">
+   	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td><img src="/service/images/title08_031.png" ></td>
+        <td align="right"><img src="/service/images/home.png" width="2" height="2"> <strong>홈</strong> &lt; 마이페이지 &lt; 문서변환 조회</td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr><td height="20"></td></tr> 
+</table>
+<img src="/service/images/sub08_04_txt031.png" width="636" height="111">
+
+<form name="search_form" id="search_form" action=<?php echo $_SERVER['PHP_SELF'];?> class="local_sch01 local_sch" method="get">
+    <input type="hidden" name="m1" value="8" >
+    <input type="hidden" name="m2" value="<?=$pgMNo1 ?>" >    
+<label for="st" class="sound_only">검색대상</label>
+<input type="hidden" name="st" id="st" value="edoc_wdoc" >
+<label for="sv" class="sound_only">검색어</label>
+<input type="text" name="sv" value="<?php echo $sv ?>" id="sv" class="frm_input">
+<input type="submit" value="검색" class="btn_submit">
+
+</form>
+
+<div class="tbl_head01 tbl_wrap">
+    <table>
+    <caption><?php echo $g5['title']; ?> 목록</caption>
+    <thead>
+    <tr>
+        <th scope="col">번호</th>
+        <th scope="col">문서제목</th>
+        <th scope="col">변환일시</th>
+        <th scope="col">메세지</th>
+        <th scope="col">sms</th>
+        <th scope="col">회신</th>        
+        <th scope="col">재전송</th>
+     </tr>
+     </thead>
+     <tbody>
+    <?php if (!$total_count) { ?>
+    <tr>
+        <td colspan="<?php echo $colspan?>" class="empty_table" >
+            데이터가 없습니다.
+        </td>
+    </tr>
+    <?php
+    }
+    $SqlText = "select edoc_master.*,"
+                     ."(select  sum(wr_total)  from  {$g5['sms5_write_table']} where wr_udoc = edoc_ukey) as smsCnt, "
+                     ."(select  max(wr_message)  from  {$g5['sms5_write_table']} where wr_udoc = edoc_ukey) as stitle, "
+                     ."(select  ifnull(auto_date,'')  from  autoletter where auto_udoc = edoc_ukey and auto_udoc != '' and auto_udoc is not null ) as autocreate, "
+                     ."(select ifnull(eplm_gubn,'') from epoll_master where eplm_ukey = edoc_attach_poll_id) as eplm_gubn, "
+                     ."(SELECT Max(wr_no) FROM sms5_write where wr_udoc = edoc_ukey) as wr_no "
+                     ." from edoc_master where edoc_mbid=  '{$member['mb_id']}' $sql_search "
+                     ."order by edoc_ukey desc limit $page_start, $page_size";
+    $qry = sql_query($SqlText);
+    while($res = sql_fetch_array($qry)) {
+        $bg = 'bg'.($line++%2);
+        $stitle = str_replace($res['edoc_surl'], '', $res['stitle']);
+        if ($res['edoc_attach_poll_id'] > ''){
+        $follYN = 'Y';
+      } else {
+        $follYN = 'N';
+      }
+      if ($res['autocreate'] == ''){
+          $crdate = date('Y-m-d H:i', strtotime($res['edoc_time']));
+          
+      } else {
+          $crdate = '자동['.$res['autocreate'].']';
+      }      
+    ?>
+    <tr class="<?php echo $bg; ?>">
+        <td class="td_num"><?php echo $vnum--?></td>
+        <td><a href="<?php echo $res['edoc_surl']?>" onclick="opennewwindow(this.href); return false;"><?php echo $res['edoc_wdoc']?></a></td>
+        <td class="td_datetime"><?php echo $crdate ?></td>
+        <td><?php echo $res['stitle']?></td>        
+        <td class="td_num">
+            <?php if ($res['smsCnt'] > 0) { ?>
+                <a href="/service/history_view.php?wr_no=<?php echo $res['wr_no'];?>"><?php echo number_format($res['smsCnt'])?></a>
+          <?php }?>
+          </td>
+        <td class="td_num"><?php echo $follYN?></td>
+        <td class="td_mngsmall">
+<?php if($res['edoc_var'] == '0' ) { ?>
+<form name="sms_resend_fromDoc" method="get" action="/serv.php">
+            <input type="hidden" name="m1" value="4">
+            <input type="hidden" name="m2" value="1">
+            <input type="hidden" name="udoc" value="<?=$res['edoc_ukey']?>">          
+            <input type="hidden" name="udcn" value="<?=$res['edoc_surl']?>">          
+            <input type="hidden" name="stitle" value="<?=$stitle?>">          
+            <input type="hidden" name="polltype" id="polltype" value="0">                      
+            <input type="submit" value="SMS 재전송" class="btn_submit">                        
+  </form>          
+<?php } else { ?>         
+              [개별고지]
+<?php }?>  
+        </td>
+    </tr>
+    <?php } ?>
+    </tbody>
+    </table>
+</div>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, $_SERVER['PHP_SELF']."?m1=8&m2=3&st=$st&amp;sv=$sv&amp;page="); ?>
+</div>
+<SCRIPT TYPE="text/javascript">
+function opennewwindow(url){   
+      window.open(url);
+}      
+</SCRIPT>

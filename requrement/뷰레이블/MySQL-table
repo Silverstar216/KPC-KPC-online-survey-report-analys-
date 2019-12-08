@@ -1,0 +1,53 @@
+questions_groups:		설문그룹테블
+	survey_id:			설문ID
+	number:				그룹번호
+	title:				그룹제목
+	question_count:		그룹에 속한 질문수
+
+questions:				설문테블(개별문항)
+	survey_id:
+	question_group_id:	그룹ID
+	number:				질문번호(그룹안에서 순서번호)
+	type:				질문형태(객관식:0, 주관식:1, 만족도:2, 강사만족도:3)
+	question:			질문(본문)
+	question_img_url:	질문이미지
+	example_count:		질문에 응답하는 샘플개수(네이버, 친구...), 만족도, 강사만족도일대는 별개수, 주관식일때 입력창수 개수
+	exam_object_count:	강사만족도일때 평가대상개수
+	exam_kind_count:	강사만족도일때 평가지표개수
+	type_grade:			
+	final:
+	flag:				????--맞춤형?공개형
+	allow_reply_response:
+	use_other_input:	복수선택가능
+	allow_unselect:		미선택가능
+	allow_random_align:	보기순서 임의로 배열
+	end_comment_index:	?마지막보기(주관식)
+	rating_move_value:	..으로 이동
+	reverse_question:	역문항체크(만족도에서)
+	rating_names:		만족정도이름라열
+
+question_exam_kinds:	강사평가지표목록테블(강사만족도에서)
+	question_id:		문항(질문)ID
+	number:				평가지표번호(순서)
+	title:				평가지표제목(title)
+	content:			평가지표내용
+
+quesion_exam_objects:	강사대상평가
+	question_id:
+	number:
+	title:				강사이름(평가대상)
+	profile:			그림경로
+
+examples:				객관식 옵션항목
+	question_id:
+	number:
+	img_url:			객관식 보기 이미지 삽입시 경로	
+	title:				보기(객관식 옵션항목명)
+	type:
+	flag:
+	question_move:		번문항으로 이동
+
+survey_end:				설문 3단계 테블
+	survey_id:
+	id:					번호
+	content:			내용

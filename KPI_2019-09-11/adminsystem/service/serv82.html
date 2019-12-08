@@ -1,0 +1,291 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
+  add_stylesheet('<link rel="stylesheet" href="'.G5_CSS_URL.'/jquery-ui.css">', 0);
+  add_javascript('<script type="text/javascript" src="'.G5_JS_URL.'/jquery-ui.min.js"></script>', 0);  
+   $page_size = 20;
+  $colspan = 10;
+
+  $g5['title'] = "문자전송 내역";
+
+   $ele_today = date("Y-m-d");// 처리일
+
+    if (!isset($startdate)){
+          $startdate = date("Y-m-d",strtotime($ele_today.' -1 month'));
+    }
+    if (!isset($enddate)){
+          $enddate  = $ele_today;
+    }
+    if ($startdate > $enddate ){
+      $tmpdate = $startdate;
+      $startdate = $enddate;
+      $enddate  = $tmpdate;
+    }
+  $qrystime = $startdate.' 00:00:00';
+  $qryetime = $enddate.' 23:59:59';
+  if ($page < 1) $page = 1;
+
+  if ($st && trim($sv))
+      $sql_search = " and wr_datetime between '{$qrystime}' and '{$qryetime}' and wr_message like '%$sv%' ";
+  else
+      $sql_search = " and wr_datetime between '{$qrystime}' and '{$qryetime}' ";
+
+  $total_res = sql_fetch("select count(*) as cnt from {$g5['sms5_write_table']} where wr_id=  '{$member['mb_no']}' and wr_renum=0 $sql_search");
+  $total_count = $total_res['cnt'];  
+
+  $total_page = (int)($total_count/$page_size) + ($total_count%$page_size==0 ? 0 : 1);
+  $page_start = $page_size * ( $page - 1 );
+
+  $vnum = $total_count - (($page-1) * $page_size);
+    
+?>
+   <div class="subTopTab">
+  <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>전송결과조회</span></a></li>
+           
+    </ul>
+    </div>
+
+<div class="titlegroup">
+     <em>전송결과조회</em>      
+     <div class="navgroup">   
+         <p>Home <span class="rt">&gt;</span> 마이페이지 <span class="rt">&gt;</span> 전송결과조회</p>
+    </div>     
+</div>
+
+<div class="phonegroup">
+<div class="phonegroupin">
+<div class="phonegroupwrap">
+
+ <div id="sub_content">
+    <table id="sub08_04_help" >
+     <tr>
+      <td><img src="/img/10pbtn_03.gif" alt="응답정보아이콘"></td>
+      <td>
+        <p>통신사로부터 전송 오류 응답을 받는 즉시 실패건은 자동 충전(환불)됩니다.</p>
+        <p>이동통신사의 사정에 의하여, 전송이 지연될 경우 전송결과가 다소 늦게 보일 수 있습니다. </p>
+      </td>
+     </tr>
+    </table>
+
+  <form name="search_form" id="search_form" action=<?php echo $_SERVER['PHP_SELF'];?> class="local_sch01 local_sch" method="get">
+  <label for="st" class="sound_only">검색대상</label>
+  <input type="hidden" name="st" id="st" value="wr_message" >
+  <input type="hidden" name="m1" id="m1" value="8" >
+  <input type="hidden" name="m2" id="m2" value="2" >
+   <input type="text" id="fromdate" name = "startdate" size="12" readonly="readonly" value="<?=$startdate?>"> ~ <input type="text" id="todate" name = "enddate" size="12" readonly="readonly"  value="<?=$enddate?>">
+  <label for="sv" class="sound_only">검색어</label>
+  <input type="text" name="sv" value="<?php echo $sv ?>" id="sv" class="frm_input">
+  <input type="submit" value="검색" class="btnW2">
+
+  <div class="btn_add01 btn_add">
+          <a href="/service/serv82_detail.php?&startdate=<?php echo $startdate;?>&enddate=<?php echo $enddate;?>">Excel로 받기</a>
+          <a href="/serv.php?m1=8&m2=1">문자예약 내역</a>
+ </div>
+  </form>
+<?php 
+if ($total_count) {
+$calc_qry = "select (case when ( ifnull((select count(*) from sms5_history as sh where sh.wr_no = sm.wr_no and sh.mb_id = 'LMS'),0) > 0) then 'LMS' else 'SMS' end) as lms_yn, 
+sum(sm.wr_total) tcnt ,
+sum(sm.wr_success) scnt,
+sum(sm.wr_failure) fcnt, 
+sum(case when (locate('http://mms.ac',wr_message) > 0) then wr_total else 0 end) cv_total,
+sum(case when (locate('http://mms.ac',wr_message) > 0) then wr_success else 0 end) cv_success,
+sum(case when (locate('http://mms.ac',wr_message) > 0) then wr_failure else 0 end) cv_failed 
+from sms5_write sm 
+where wr_id= '{$member['mb_no']}' and wr_renum=0 $sql_search 
+group by 1";
+
+$calcR_qry = sql_query($calc_qry);
+$clac_Text = '';
+    while($res_clac = sql_fetch_array($calcR_qry)) {   
+        $lms_yn =$res_clac['lms_yn'];
+        $tcnt = $res_clac['tcnt'];
+        $scnt = $res_clac['scnt'];
+        $fcnt = $res_clac['fcnt'];
+		$wcnt = $tcnt - ($scnt + $fcnt);
+		if ($tcnt < ($scnt + $fcnt)) {
+			$wcnt = 0;
+			if ($tcnt < $scnt) {
+				$scnt = $tcnt;
+				$fcnt = 0;
+			}			
+			else {
+				$fcnt = $tcnt - $scnt;
+			}
+		}
+		
+        $cv_total = $res_clac['cv_total'];
+        $cv_success = $res_clac['cv_success'];
+        $cv_failed = $res_clac['cv_failed'];
+		$cv_wait = $cv_total - ($cv_success + $cv_failed);
+		if ($cv_total < ($cv_success + $cv_failed)) {
+			$cv_wait = 0;
+			if ($cv_total < $cv_success) {
+				$cv_success = $cv_total;
+				$cv_failed = 0;
+			}			
+			else {
+				$cv_failed = $cv_total - $cv_success;
+			}
+		}
+		
+        $clac_Text = $clac_Text.' <span class="ccwText">[ '.$lms_yn .
+			' : 총건수 '.$tcnt.'('.$cv_total.
+			'), 성공 '.$scnt.'('.$cv_success.
+			'), 대기 '.$wcnt.'('.$cv_wait.
+			'), 실패 '.$fcnt.'('.$cv_failed.
+			') ]</span><br>';
+    }
+    echo '<div style="padding-bottom: 10px;">'.$clac_Text.'<span class="ccwText"> ()의 숫자는 문서첨부건수입니다.</span></div>';	
+ } ?>  
+<div class="tbl_head01 tbl_wrap">
+   <table>
+    <caption><?php echo $g5['title']; ?> 목록</caption>
+       <colgroup>
+       <col width="6%" />
+       <col width="*" />
+       <col width="16%" />
+       <col width="6%" />
+       <col width="6%" />
+       <col width="6%" />
+       <col width="6%" />
+       <col width="6%" />
+	   <col width="6%" />  
+       <col width="12%" />                                  
+       <col width="6%" />
+       </colgroup>    
+    <thead>
+    <tr>
+        <th scope="col">번호</th>
+        <th scope="col">메세지</th>        
+        <th scope="col">전송일시<?php echo ($member['mb_no']==93)?'<br>(회신번호)':'' ?></th>
+        <th scope="col">예약</th>
+        <th scope="col">총건</th>
+        <th scope="col">성공</th>
+        <th scope="col">대기</th>
+		<th scope="col">실패</th>
+        <th scope="col">조회</th>
+        <th scope="col">첨부문서</th>
+        <th scope="col">관리</th>
+     </tr>
+     </thead>
+     <tbody>
+    <?php if (!$total_count) { ?>
+    <tr>
+        <td colspan="<?php echo $colspan?>" class="empty_table" >
+            해당 기간  <?=$startdate?> ~ <?=$enddate?> 에는 전송내역이 없습니다.
+        </td>
+    </tr>
+    <?php
+    }
+	
+	$qry_text = "
+	select 
+		sms5_write.*, 
+		(select edoc_surl FROM edoc_master where edoc_ukey = wr_udoc) as surl
+	from 
+		{$g5['sms5_write_table']}
+	where 
+		wr_id= '{$member['mb_no']}' and wr_renum=0 $sql_search order by wr_no desc limit $page_start, $page_size";			
+		
+    $qry = sql_query($qry_text);	
+	
+    while($res = sql_fetch_array($qry)) {
+        $bg = 'bg'.($line++%2);
+		$wr_no = $res['wr_no'];
+		$wr_udoc = $res['wr_udoc'];
+		$cv_total = $res['wr_total'];
+        $cv_success = $res['wr_success'];
+        $cv_failed = $res['wr_failure'];
+		$cv_wait = $cv_total - ($cv_success + $cv_failed);
+		if ($cv_total < ($cv_success + $cv_failed)) {
+			$cv_wait = 0;
+			if ($cv_total < $cv_success) {
+				$cv_success = $cv_total;
+				$cv_failed = 0;
+			}			
+			else {
+				$cv_failed = $cv_total - $cv_success;
+			}
+		}
+
+		$qry_text = "SELECT MIN(hs_no) as min, MAX(hs_no) as max FROM sms5_history WHERE sms5_history.wr_no = {$wr_no}";
+		$hs_no_range = sql_fetch_array(sql_query($qry_text));	
+		$min_hs_no = $hs_no_range['min'];
+		$max_hs_no = $hs_no_range['max'];
+		
+		if ($wr_udoc != null)
+			$qry_text = "SELECT SUM( CASE WHEN clicks > 0 THEN 1 ELSE 0 END ) as clicks 
+								FROM doc_info
+								LEFT JOIN forel_url ON keyword = dc_4key
+								WHERE 	({$wr_udoc} is null OR dc_udoc = {$wr_udoc}) AND 
+										{$min_hs_no} is not null AND {$max_hs_no} is not null AND
+										dc_usms >= {$min_hs_no} AND dc_usms <= {$max_hs_no} ";		
+		else
+			$qry_text = "SELECT SUM( CASE WHEN clicks > 0 THEN 1 ELSE 0 END ) as clicks 
+								FROM doc_info
+								LEFT JOIN forel_url ON keyword = dc_4key
+								WHERE 	({$wr_udoc} is null OR dc_udoc = {$wr_udoc}) AND 
+										{$min_hs_no} is not null AND {$max_hs_no} is not null AND
+										dc_usms >= {$min_hs_no} AND dc_usms <= {$max_hs_no}";		
+		
+		$clicks_res = sql_fetch_array(sql_query($qry_text));			
+		
+    ?>
+    <tr class="<?php echo $bg; ?>">
+        <td class="td_num"><?php echo $vnum--?></td>
+        <td class="td_msg"><span title="<?php echo $res['wr_message']?>"><?php echo $res['wr_message']?></span></td>        
+        <td class="td_datetime"><?php echo date('Y-m-d H:i', strtotime($res['wr_datetime']))?><?php echo ($member['mb_no']==93)?'<br>('.$res['wr_reply'].')':'' ?></td>
+        <td class="td_boolean"><?php echo $res['wr_booking']!='0000-00-00 00:00:00'?"<span title='{$res['wr_booking']}'>예약</span>":'';?></td>
+        <td class="td_num"><?php echo number_format($cv_total)?></td>
+        <td class="td_num"><?php echo number_format($cv_success)?></td>
+        <td class="td_num"><?php echo number_format($cv_wait)?></td>
+		<td class="td_num"><?php echo number_format($cv_failed)?></td>
+        <td class="td_num"><?php echo number_format($clicks_res['clicks'])?></td>
+        <td class="td_doc">			
+			<?php 
+				if ($res['surl'])
+					echo '<a href="'.$res['surl'].'">첨부문서</a>'; 				
+			?>
+		</td>
+        <td class="td_mngsmall">
+            <a href="/service/history_view.php?page=<?php echo $page;?>&amp;st=<?php echo $st;?>&amp;sv=<?php echo $sv;?>&amp;wr_no=<?php echo $res['wr_no'];?>">상세</a>
+        </td>
+    </tr>
+    <?php } ?>
+    </tbody>
+  </table>
+</div>
+
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, $_SERVER['PHP_SELF']."?m1=8&m2=2&st=$st&amp;sv=$sv&amp;startdate=$startdate&amp;enddate=$enddate&amp;page="); ?>
+
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    $.datepicker.regional['ko'] = {
+       closeText: '닫기',
+       prevText: '이전',
+       nextText: '다음',
+       currentText: '오늘',
+       monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+       monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12'],
+       dayNames: ['일','월','화','수','목','금','토'],
+       dayNamesShort: ['일','월','화','수','목','금','토'],
+       dayNamesMin: ['일','월','화','수','목','금','토'],
+       weekHeader: 'Wk',
+       dateFormat: 'yy-mm-dd',
+       firstDay: 0,
+       isRTL: false,
+       showMonthAfterYear: true,
+       yearSuffix: ''};
+  
+  $.datepicker.setDefaults($.datepicker.regional['ko']);
+
+  $( "#fromdate" ).datepicker();
+  $( "#todate" ).datepicker();
+
+});
+</script>

@@ -1,0 +1,198 @@
+<?php
+  if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가   
+
+$g5['title'] = "휴대폰번호 그룹";
+$res = sql_fetch("select count(*) as cnt from {$g5['sms5_book_group_table']} where bg_member = '{$member['mb_no']}' ");
+$total_count = $res['cnt'];
+$no_group = sql_fetch("select bg_no,bg_name,bg_count,bg_member,bg_nomember,
+ifnull((select count(*) from {$g5['sms5_book_table']} as sg5 where sg5.bg_no = 1 and mb_no = '{$member['mb_no']}' and bk_receipt= 1),0) as bg_receipt,    
+bg_reject from {$g5['sms5_book_group_table']} where bg_no=1 ");
+
+$group = array();
+$qry = sql_query("select bg_no,bg_name,bg_count,bg_member,bg_nomember,
+ifnull((select count(*) from {$g5['sms5_book_table']} as sg5 
+    where sg5.bg_no = w.bg_no and mb_no = '{$member['mb_no']}' and bk_receipt= 1),0) as bg_receipt,    
+bg_reject from {$g5['sms5_book_group_table']} as w where bg_no > 1 and bg_member = '{$member['mb_no']}'  order by bg_name");
+while ($res = sql_fetch_array($qry)) array_push($group, $res);  
+?>
+<script>
+
+function del(bg_no) {
+    if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n삭제되는 그룹에 속한 자료는 '<?php echo $no_group['bg_name']?>'로 이동됩니다.\n\n그래도 삭제하시겠습니까?")) {
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>         
+        location.href = '/service/num_group_update.php?mw=d&bg_no=' + bg_no;
+<?php } ?>         
+    }
+}
+
+function move(bg_no, bg_name, sel) {
+    var msg = '';
+    if (sel.value)
+    {
+        msg  = "'" + bg_name + "' 그룹에 속한 모든 데이터를\n\n'";
+        msg += sel.options[sel.selectedIndex].text + "' 그룹으로 이동하시겠습니까?";
+
+        if (confirm(msg)) {
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>         
+            location.href = '/service/num_group_move.php?bg_no=' + bg_no + '&move_no=' + sel.value;
+<?php } ?>                     
+        }
+        else
+            sel.selectedIndex = 0;
+    }
+}
+
+function empty(bg_no) {
+    if (confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n그룹에 속한 데이터를 정말로 비우시겠습니까?"))
+    {       
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?>                     
+        location.href = '/service/num_group_update.php?mw=empty&bg_no=' + bg_no;
+<?php } ?>        
+    }
+}
+
+function num_group_submit(f)
+{
+    if (!is_checked("chk[]")) {
+        alert(document.pressed+" 하실 항목을 하나 이상 선택하세요.");
+        return false;
+    }
+
+    if(document.pressed == "그룹명, 내용 전부삭제") {
+        if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n삭제되는 그룹에 속한 자료는 '<?php echo $no_group['bg_name']?>'로 이동됩니다.\n\n그래도 삭제하시겠습니까?")) {
+            f.w.value = "de";
+        } else {
+            return false;
+        }
+    }
+
+    if(document.pressed == "그룹명남기고 내용만 삭제") {
+        if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n그룹에 속한 데이터를 정말로 비우시겠습니까?")) {
+            f.w.value = "em";
+        } else {
+            return false;
+        }
+    }
+<?php if ($is_guest) {?>
+      alert("로그인 후 사용가능합니다.");
+      document.location.replace("<?php echo G5_BBS_URL.'/login.php?url='.urlencode(G5_URL.'/serv.php?m1='.$pgMNo.'&m2='.$pgMNo1) ?>");
+      return false;
+<?php } else {?> 
+    return true;
+<?php } ?>     
+}
+
+</script>
+<div class="subTopTab">
+    <ul class="item">
+        <li><a href="#" title="페이지 이동" class="active"><span>휴대폰 번호그룹</span></a></li>
+           
+    </ul>
+</div>
+<div class="titlegroup">
+    <em>휴대폰 번호그룹</em>      
+     <div class="navgroup">     
+             <p>Home <span class="rt">&gt;</span>전화번호관리<span class="rt">&gt;</span> 휴대폰 번호그룹</p>
+    </div>     
+</div>
+<div class="phonegroup">
+<div class="phonegroupin">
+<div class="phonegroupwrap"> 
+    <form name="group<?php echo $res['bg_no']?>" method="get" action="/service/num_group_update.php" class="local_sch02 local_sch">
+        <input type="hidden" name="bg_no" value="<?php echo $res['bg_no']?>">
+        <div>
+            <label for="bg_name" class="sound_only">그룹추가<strong class="sound_only"> 필수</strong></label>
+            <input type="text" id="bg_name" name="bg_name" required class="required frm_input">
+            <input type="submit" value="그룹추가" class="btnW2">
+        </div>
+        <div class="sch_last">
+            <span>그룹 갯수 : <?php echo $total_count; ?></span>
+        </div>
+        </form>
+
+        <div class="local_desc01 local_desc">
+            <p>그룹명순으로 정렬됩니다.</p>
+        </div>
+
+        <form name="group_hp_form" id="group_hp_form" method="post" action="/service/num_group_update.php" onsubmit="return num_group_submit(this);">
+        <input type="hidden" name="w" value="u">
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+            <caption><?php echo $g5['title']; ?> 목록</caption>
+            <colgroup>
+            <col width="3%" />
+            <col width="40%" />
+            <col width="6%" />
+            <col width="*" />  
+            <col width="10%" />
+            </colgroup>    
+            <thead>
+            <tr>
+                <th scope="col">
+                    <label for="chkall" class="sound_only">그룹 전체</label>
+                    <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
+                </th>
+                <th scope="col">그룹명</th>
+                <th scope="col">갯수</th>
+                <th scope="col">이동</th>
+                <th scope="col">보기</th>
+             </tr>
+             </thead>
+             <tbody>            
+            <?php
+            for ($i=0; $i<count($group); $i++) {
+            $bg = 'bg'.(($i + 1)%2);
+            ?>
+            <tr class="<?php echo $bg; ?>">
+                <td class="td_mng">
+                    <input type="hidden" name="bg_no[<?php echo $i ?>]" value="<?php echo $group[$i]['bg_no']?>" id="bg_no_<?php echo $i ?>">
+                    <label for="chk_<?php echo $i ?>" class="sound_only">그룹명</label>
+                    <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
+                </td>
+                <td>
+                    <label for="bg_name_<?php echo $i; ?>" class="sound_only">그룹명</label>
+                    <input type="text" name="bg_name[<?php echo $i; ?>]" value="<?php echo $group[$i]['bg_name']?>" id="bg_name_<?php echo $i; ?>" class="frm_input">
+                </td>
+                <td class="td_num"><?php echo number_format($group[$i]['bg_receipt'])?></td>
+                <td class="td_mbstat">
+                    <label for="select_bg_no_<?php echo $i; ?>" class="sound_only">이동할 그룹</label>
+                    <select name="select_bg_no[<?php echo $i ?>]" id="select_bg_no_<?php echo $i; ?>" onchange="move(<?php echo $group[$i]['bg_no']?>, '<?php echo $group[$i]['bg_name']?>', this);" >
+                        <option value=""></option>
+                        <option value="<?php echo $no_group['bg_no']?>"><?php echo $no_group['bg_name']?></option>
+                        <?php for ($j=0; $j<count($group); $j++) { ?>
+                        <?php if ($group[$i]['bg_no']==$group[$j]['bg_no']) continue; ?>
+                        <option value="<?php echo $group[$j]['bg_no']?>"> <?php echo $group[$j]['bg_name']?> </option>
+                        <?php } ?>
+                    </select>
+                </td>
+                <td class="td_mng">
+                    <a href="/serv.php?m1=4&m2=3&bg_no=<?php echo $group[$i]['bg_no']?>">보기</a>
+                </td>
+            </tr>
+            <?php } ?>
+            </tbody>
+            </table>
+        </div>
+        <br>
+        <div class="bottombtn" >
+            <input type="submit" name="act_button" value="그룹명수정" class="btnT1" onclick="document.pressed=this.value" style="width:100px">
+            <input type="submit" name="act_button" value="그룹명, 내용 전부삭제" class="btnT1"  onclick="document.pressed=this.value" style="width:170px">
+            <input type="submit" name="act_button" value="그룹명남기고 내용만 삭제" class="btnT1"  onclick="document.pressed=this.value" style="width:170px">
+        </div>
+        </form>
+</div>
+</div>
+</div>
